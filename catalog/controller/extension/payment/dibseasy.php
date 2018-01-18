@@ -47,7 +47,6 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                                     );
                             $orderid = substr($response->payment->orderDetails->reference, 4);
                             $this->model_extension_payment_dibseasy->setAddresses($orderid, $orderUpdate);
-                            $this->load->model('checkout/dibseasy_order');
                             if($this->config->get('dibseasy_language') == 'sv-SE') {
                                 $paymentType = 'Betalnings typ';
                                 $paymentMethod = 'Betalningsmetod';
