@@ -11,4 +11,3 @@ system/dibseasy.ocmod.xml system/dibseasy.ocmod.xml
 catalog/view/theme/default/template/common/dibseasy_success.twig catalog/view/theme/default/template/common/dibseasy_success.twig
 catalog/controller/checkout/dibseasy_success.php catalog/controller/checkout/dibseasy_success.php 
 catalog/view/theme/default/template/mail/dibseasy_order.twig catalog/view/theme/default/template/mail/dibseasy_order.twig
-catalog/model/checkout/dibseasy_order.php catalog/model/checkout/dibseasy_order.php
