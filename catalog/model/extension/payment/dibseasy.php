@@ -298,15 +298,11 @@ class ModelExtensionPaymentDibseasy extends Model {
 			} else {
 				$order_data['accept_language'] = '';
 			}
-
-			$this->load->model('checkout/order');
-
+                        $this->load->model('checkout/order');
                         $order_data['comment'] = '';
-			$this->session->data['order_id'] = $this->model_checkout_order->addOrder($order_data);
-
-			$data['text_recurring_item'] = $this->language->get('text_recurring_item');
+          		$this->session->data['order_id'] = $this->model_checkout_order->addOrder($order_data);
+                      	$data['text_recurring_item'] = $this->language->get('text_recurring_item');
 			$data['text_payment_recurring'] = $this->language->get('text_payment_recurring');
-
 			$data['column_name'] = $this->language->get('column_name');
 			$data['column_model'] = $this->language->get('column_model');
 			$data['column_quantity'] = $this->language->get('column_quantity');
@@ -316,7 +312,7 @@ class ModelExtensionPaymentDibseasy extends Model {
 			$this->load->model('tool/upload');
 
 			$data['products'] = array();
-                      
+
                         foreach ($this->cart->getProducts() as $product) {
 				$option_data = array();
                    
@@ -418,7 +414,7 @@ class ModelExtensionPaymentDibseasy extends Model {
 
 		return $data;
         }
-        
+
         protected function setShippingMethod() {
             if ($this->validateCart() && $this->cart->hasShipping()) {
                 $json['shipping_methods'] = array();
@@ -507,7 +503,7 @@ class ModelExtensionPaymentDibseasy extends Model {
             curl_setopt($curl, CURLOPT_POSTFIELDS, $postData);
             
             
-            if(true) {//$this->config->get('dibseasy_debug')) {
+            if($this->config->get('dibseasy_debug')) {
                    $this->logger->write("Curl request:");
                    $this->logger->write($data);
             }
@@ -520,7 +516,7 @@ class ModelExtensionPaymentDibseasy extends Model {
             } else {
                 if( $response ) {
                    $responseDecoded = json_decode($response);
-                   if(true) { //$this->config->get('dibseasy_debug')) {
+                   if($this->config->get('dibseasy_debug')) {
                        $this->logger->write("Curl response:");
                        $this->logger->write($response);
                    }
@@ -563,6 +559,8 @@ class ModelExtensionPaymentDibseasy extends Model {
                 $netPrice = $this->currency->format($product['price'], $order_info['currency_code'], '', false);
                 $grossPrice =  $this->currency->format($this->tax->calculate($product['price'], $product['tax_class_id'], $this->config->get('config_tax')), $this->session->data['currency'], '', false);     
                 $taxAmount = $this->getTaxAmount($netPrice, $product['tax_class_id'], $order_info);
+                
+                
                 $taxRates = $this->tax->getRates($netPrice,  $product['tax_class_id']);
                 
                 $this->currency->format($product['price'], $order_info['currency_code'], '', false);
@@ -580,7 +578,7 @@ class ModelExtensionPaymentDibseasy extends Model {
              }
             $totals = $this->getTotals();  
             foreach($totals['totals'] as $total) {
-                    $shipping_method = $this->session->data['shipping_method'];
+                    $shipping_method = isset($this->session->data['shipping_method']) ? $this->session->data['shipping_method'] : null;
                     $shipping_tax_class = isset($shipping_method['tax_class_id']) ? $shipping_method['tax_class_id'] : 0;
                 if( in_array($total['code'], $this->additional_totals()) && abs($total['value']) > 0) {
                     if($total['code'] == 'shipping') {
@@ -648,7 +646,7 @@ class ModelExtensionPaymentDibseasy extends Model {
                         'termsUrl' => $this->config->get('dibseasy_terms_and_conditions')),
                 'merchantNumber' => trim($this->config->get('dibseasy_merchant')),
             );
-            if(true) { //$this->config->get('dibseasy_debug')) {
+            if($this->config->get('dibseasy_debug')) {
                    $this->logger->write("Collected data:");
                    $this->logger->write($data);
             }
@@ -679,34 +677,31 @@ class ModelExtensionPaymentDibseasy extends Model {
         }
         
         protected function getTotals() {
-               $order_data = array();
-            $order_data['totals'] = array();
-            $this->load->model('setting/extension');
-            $sort_order = array();
-            $totals = array();
-            $taxes = $this->cart->getTaxes();
-            $total = 0;
-            // Because __call can not keep var references so we put them into an array.                     
-            $total_data = array(
-                    'totals' => &$totals,
-                    'taxes'  => &$taxes,
-                    'total'  => &$total
-            );
-            $results = $this->model_setting_extension->getExtensions('total');
-            foreach ($results as $key => $value) {
-                    $sort_order[$key] = $this->config->get($value['code'] . '_sort_order');
-            }
-            array_multisort($sort_order, SORT_ASC, $results);
-            foreach ($results as $result) {
-                    if ($this->config->get($result['code'] . '_status')) {
-                            $this->load->model('extension/total/' . $result['code']);
-                            $this->{'model_extension_total_' . $result['code']}->getTotal($total_data);
-                    }
-            }
-            
-            return $total_data;
+        $this->load->model('setting/extension');
+        $totals = array();
+        $taxes = $this->cart->getTaxes();
+        $total = 0;
+        $total_data = array(
+                'totals' => &$totals,
+                'taxes'  => &$taxes,
+                'total'  => &$total
+        );
+        $sort_order = array();
+        $results = $this->model_setting_extension->getExtensions('total');
+        foreach ($results as $key => $value) {
+                $sort_order[$key] = $this->config->get('total_' . $value['code'] . '_sort_order');
         }
-        
+        array_multisort($sort_order, SORT_ASC, $results);
+        foreach ($results as $result) {
+                if ($this->config->get('total_' . $result['code'] . '_status')) {
+                        $this->load->model('extension/total/' . $result['code']);
+                        $this->{'model_extension_total_' . $result['code']}->getTotal($total_data);
+                }
+          }
+
+          return $total_data;
+       }
+
         protected function additional_totals() {
             return array('shipping');
         }
@@ -716,12 +711,18 @@ class ModelExtensionPaymentDibseasy extends Model {
             $tax_rates = $this->tax->getRates($value,  $tax_class_id);
             foreach ($tax_rates as $tax_rate) {
                   if($tax_rate['type'] == 'F') {
-                        $amount +=  $this->currency->format($tax_rate['amount'], $order_info['currency_code'], '', false);
+                       $amount +=  $this->currency->format($tax_rate['amount'], $order_info['currency_code'], '', false);
                     } else {
                        $amount += $tax_rate['amount'];
                     }
             }
+            $decimal_places = $this->currency->getDecimalPlace($order_info['currency_code']);
+            if($decimal_places) {
+                $amount = round($amount, $this->currency->getDecimalPlace($order_info['currency_code']));
+            } else {
+                $amount = round($amount);
+            }
             return $amount;
 	}
-       
+
 }

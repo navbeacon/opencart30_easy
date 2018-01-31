@@ -1,6 +1,6 @@
 <?php
 // Heading
-$_['heading_title']		 = 'Dibs Easy';
+$_['heading_title']		 = 'Dibs Checkout';
 
 // Text
 $_['text_extension'] = 'Extensions';
