@@ -9,3 +9,5 @@ This module supports Opencart version 3.0.x
 * It is possible to install module using modman: modman clone https://github.com/DIBS-Payment-Services/opencart30_dibseasy
 * Apply modifications in (Admin -> Modifications) click Refresh button
 * Set module settings in (Admin -> Extensions -> Payments -> Dibs Easy) and save
+* In Opencart admin disable this extension: Extensions->Order Totals->Shipping. 
+  Module supports only predefined shipping methods.
