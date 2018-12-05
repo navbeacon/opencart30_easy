@@ -17,7 +17,7 @@ class ModelExtensionPaymentDibseasy extends Model {
                 $this->logger = new Log('dibs.easy.log');
                 parent::__construct($registry);
         }
-        
+
 	public function getMethod($address, $total) {
             $this->load->language('extension/payment/dibseasy');
             $status = true;
@@ -32,26 +32,26 @@ class ModelExtensionPaymentDibseasy extends Model {
             }
            return $method_data;
 	}
-        
-        
+
+
         public function getCheckoutConfirm() {
                 $this->load->language('extension/payment/dibseasy');
        	 	$redirect = '';
                 if(!$this->validateCart()) {
                    $this->response->redirect($this->url->link('checkout/cart', '', true));
                 }
-                
+
                 // Set payment method
 	        $this->session->data['payment_method'] = self::METHOD_CODE;
                 $this->session->data['payment_method'] =  array(
 			'code'       => self::METHOD_CODE,
 			'title'      => $this->language->get('text_title'),
 			'sort_order' => '1');
-		
-                
+
+
                 // Set shipping method without shipping addresses
                 $this->setShippingMethod();
-                
+
                 if (!$redirect) {
                        
 			$order_data = array();
@@ -136,7 +136,7 @@ class ModelExtensionPaymentDibseasy extends Model {
                             $order_data['payment_country'] ='';
                             $order_data['payment_country_id'] = '';
                             $order_data['payment_address_format'] = '';       
-                            
+
                             // We don't know the shipping still...
                             $order_data['shipping_firstname'] = '';
                             $order_data['shipping_lastname'] = '';
@@ -183,7 +183,7 @@ class ModelExtensionPaymentDibseasy extends Model {
                                 $order_data['shipping_code'] = $shippingMethod['code'];
                                 $order_data['shipping_method'] = $shippingMethod['title'];
                    	 }
-			
+
 			$order_data['products'] = array();
 
 			foreach ($this->cart->getProducts() as $product) {
@@ -488,8 +488,9 @@ class ModelExtensionPaymentDibseasy extends Model {
         protected function makeCurlRequest($url, $data, $method = 'POST') {
             $curl = curl_init();
             $header = array();
-            $headers[] = "Content-Type: text/json"; 
-            $headers[] = "Accept: test/json"; 
+            $headers[] = 'Content-Type: text/json';
+            $headers[] = 'Accept: test/json';
+            $headers[] = 'commercePlatformTag: OC30';
             if($this->config->get('dibseasy_testmode') == 1) {
                $headers[] = 'Authorization: ' . str_replace('-', '', trim($this->config->get('dibseasy_testkey')));
             } else {
@@ -501,10 +502,8 @@ class ModelExtensionPaymentDibseasy extends Model {
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
             curl_setopt($curl, CURLOPT_POSTFIELDS, $postData);
-            
-            
             if($this->config->get('dibseasy_debug')) {
-                   $this->logger->write("Curl request:");
+                   $this->logger->write('Curl request:');
                    $this->logger->write($data);
             }
             
@@ -517,21 +516,21 @@ class ModelExtensionPaymentDibseasy extends Model {
                 if( $response ) {
                    $responseDecoded = json_decode($response);
                    if($this->config->get('dibseasy_debug')) {
-                       $this->logger->write("Curl response:");
+                       $this->logger->write('Curl response:');
                        $this->logger->write($response);
                    }
                    return ($responseDecoded) ? $responseDecoded : null;
                 }
             }
-            
+
             if(curl_error($curl)) {
-              $this->logger->write("Curl error:");
+              $this->logger->write('Curl error:');
               $this->logger->write(curl_error($curl));
             }
             
          
         }
-        
+
         protected function getTotalTaxRate($tax_class_id) {
              $totalRate = 0;   
                foreach($this->tax->getRates(0, $tax_class_id) as $tax) {
@@ -650,7 +649,7 @@ class ModelExtensionPaymentDibseasy extends Model {
                    $this->logger->write("Collected data:");
                    $this->logger->write($data);
             }
-            
+
             return json_encode($data);
         }
         
@@ -667,7 +666,7 @@ class ModelExtensionPaymentDibseasy extends Model {
 		$query = $this->db->query("SELECT * FROM " . DB_PREFIX . "country WHERE `iso_code_3` = '" . $this->db->escape($iso_code_3) . "' AND `status` = '1'");
 		return $query->row;
 	}
-        
+
         public function setAddresses($order_id, $data) {
             $setFields = '';
             foreach($data as $key => $value) {
