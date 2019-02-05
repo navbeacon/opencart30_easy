@@ -1,6 +1,6 @@
 <?php
 class ModelExtensionPaymentDibseasy extends Model {
-        
+
     const METHOD_CODE = 'dibseasy';
     const SHIPPING_CODE = 'free';
     const PAYMENT_API_TEST_URL = 'https://test.api.dibspayment.eu/v1/payments';
@@ -406,7 +406,7 @@ class ModelExtensionPaymentDibseasy extends Model {
                         } else {
                              $data['checkout_script'] = self::CHECKOUT_SCRIPT_TEST;
                         }
-                        
+
                         $data['checkoutconfirmurl'] = $this->url->link('extension/payment/dibseasy/confirm', '', true);
         	} else {
 			$data['redirect'] = $redirect;
@@ -441,7 +441,7 @@ class ModelExtensionPaymentDibseasy extends Model {
                 
             }
         }
-        
+
         protected function validateCart() {
             // Validate cart has products and has stock.
             if ((!$this->cart->hasProducts() && empty($this->session->data['vouchers'])) || (!$this->cart->hasStock() && !$this->config->get('config_stock_checkout'))) {
@@ -466,7 +466,7 @@ class ModelExtensionPaymentDibseasy extends Model {
             }
             return true;
         }
-        
+
         public function initCheckout() {
             $paymentId = '';
          
@@ -475,7 +475,7 @@ class ModelExtensionPaymentDibseasy extends Model {
             } else {
                 $url = self::PAYMENT_API_TEST_URL;
             }
-            
+
             $response = $this->makeCurlRequest($url, $this->collectData());
             if($response && isset($response->paymentId)) {
                 return $response->paymentId;
@@ -484,7 +484,7 @@ class ModelExtensionPaymentDibseasy extends Model {
             }
             return false;
         }
-        
+
         protected function makeCurlRequest($url, $data, $method = 'POST') {
             $curl = curl_init();
             $header = array();
@@ -506,7 +506,7 @@ class ModelExtensionPaymentDibseasy extends Model {
                    $this->logger->write('Curl request:');
                    $this->logger->write($data);
             }
-            
+
             $response = curl_exec($curl);
             $info = curl_getinfo($curl);
             $this->logger->write($info);
@@ -558,10 +558,7 @@ class ModelExtensionPaymentDibseasy extends Model {
                 $netPrice = $this->currency->format($product['price'], $order_info['currency_code'], '', false);
                 $grossPrice =  $this->currency->format($this->tax->calculate($product['price'], $product['tax_class_id'], $this->config->get('config_tax')), $this->session->data['currency'], '', false);     
                 $taxAmount = $this->getTaxAmount($netPrice, $product['tax_class_id'], $order_info);
-                
-                
                 $taxRates = $this->tax->getRates($netPrice,  $product['tax_class_id']);
-                
                 $this->currency->format($product['price'], $order_info['currency_code'], '', false);
                 $taxRate = $this->getTotalTaxRate($product['tax_class_id']);
                 $this->products[] = array(
@@ -575,7 +572,7 @@ class ModelExtensionPaymentDibseasy extends Model {
                     'grossTotalAmount' => round($grossPrice * 100) * $product['quantity'],
                     'netTotalAmount' => round($netPrice * $product['quantity'] * 100));
              }
-            $totals = $this->getTotals();  
+            $totals = $this->getTotals();
             foreach($totals['totals'] as $total) {
                     $shipping_method = isset($this->session->data['shipping_method']) ? $this->session->data['shipping_method'] : null;
                     $shipping_tax_class = isset($shipping_method['tax_class_id']) ? $shipping_method['tax_class_id'] : 0;
@@ -634,25 +631,52 @@ class ModelExtensionPaymentDibseasy extends Model {
                         'netTotalAmount' => $delta);
                     }
             }
+            $customerType = $this->config->get('dibseasy_allowed_customer_type');
+            $supportedTypes = array();
+            $consumerType = array();
+            if(trim($customerType)) {
+                $default = null;
+                switch($customerType) {
+                    case 'b2c' :
+                        $supportedTypes = array('B2C');
+                        $default = 'B2C';
+                        break;
+                    case 'b2b':
+                        $supportedTypes = array('B2B');
+                        $default = 'B2B';
+                        break;
+                    case 'b2c_b2b_b2c':
+                        $supportedTypes = array('B2C', 'B2B');
+                        $default = 'B2C';
+                        break;
+                    case 'b2b_b2c_b2b':
+                        $supportedTypes = array('B2C', 'B2B');
+                        $default = 'B2B';
+                        break;
+                }
+              $consumerType = array('supportedTypes'=>$supportedTypes,'default'=>$default);
+            }
             $data = array(
                 'order' => array(
                     'items' => $this->products,
                     'amount' => round($this->currency->format($order_info['total'], $order_info['currency_code'], '', false) * 100),
                     'currency' => $order_info['currency_code'],
                     'reference' => 'opc_' . $this->session->data['order_id']),
-                    'checkout' => array(
+                 'checkout' => array(
                         'url' => $this->url->link('extension/payment/dibseasy/confirm', '', true),
-                        'termsUrl' => $this->config->get('dibseasy_terms_and_conditions')),
-                'merchantNumber' => trim($this->config->get('dibseasy_merchant')),
-            );
+                        'termsUrl' => $this->config->get('dibseasy_terms_and_conditions')));
+            if($consumerType) {
+                $checkout = $data['checkout'];
+                $checkout['consumerType'] = $consumerType;
+                $data['checkout'] = $checkout;
+            }
             if($this->config->get('dibseasy_debug')) {
                    $this->logger->write("Collected data:");
                    $this->logger->write($data);
             }
-
             return json_encode($data);
         }
-        
+
         public function getTransactionInfo($transactionId) {
              if($this->config->get('dibseasy_testmode') == 1) {
                   $url = str_replace('{transactionId}', $transactionId, self::PAYMENT_TRANSACTION_URL_PATTERN_TEST);
@@ -674,7 +698,7 @@ class ModelExtensionPaymentDibseasy extends Model {
             }
             $this->db->query("UPDATE `" . DB_PREFIX . "order` SET ". $setFields ." date_modified = NOW() WHERE order_id = '" . (int)$order_id . "'");
         }
-        
+
         protected function getTotals() {
         $this->load->model('setting/extension');
         $totals = array();
@@ -704,7 +728,7 @@ class ModelExtensionPaymentDibseasy extends Model {
         protected function additional_totals() {
             return array('shipping');
         }
-        
+
         public function getTaxAmount($value, $tax_class_id, $order_info) {
             $amount = 0;
             $tax_rates = $this->tax->getRates($value,  $tax_class_id);

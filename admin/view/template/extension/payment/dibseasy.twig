@@ -39,27 +39,27 @@
           <div class="col-sm-10">
           </div>
           </div>
-          
+
           <div class="form-group">
             <label class="col-sm-2 control-label" for="input-total">{{ entry_dibseasy_livekey }}</label>
             <div class="col-sm-10">
               <input type="text" name="dibseasy_livekey" value="{{ dibseasy_livekey }}" id="input-total" class="form-control" />
             </div>
           </div> 
-            
+
           <div class="form-group">
             <label class="col-sm-2 control-label" for="input-total">{{ entry_dibseasy_checkoutkey_live }}</label>
             <div class="col-sm-10">
               <input type="text" name="dibseasy_checkoutkey_live" value="{{ dibseasy_checkoutkey_live }}" id="input-total" class="form-control" />
             </div>
           </div> 
-          
+
           <div class="form-group">
             <label class="col-sm-2 control-label" style="font-size: 15px;">Test (Sandbox) key</label>
           <div class="col-sm-10">
           </div>
           </div>
-            
+
           <div class="form-group">
             <label class="col-sm-2 control-label" for="input-total">{{ entry_dibseasy_livekey }}</label>
             <div class="col-sm-10">
@@ -72,7 +72,7 @@
               <input type="text" name="dibseasy_checkoutkey_test" value="{{ dibseasy_checkoutkey_test }}" id="input-total" class="form-control" />
             </div>
           </div> 
-          
+
           <div class="form-group">
             <label class="col-sm-2 control-label" for="input-order-status">{{ entry_order_status }}</label>
             <div class="col-sm-10">
@@ -87,7 +87,7 @@
               </select>
             </div>
           </div>
-           
+
           <div class="form-group required">
             <label class="col-sm-2 control-label" for="dibseasy_terms_and_conditions">{{ entry_dibseasy_terms_and_conditions }}</label>
             <div class="col-sm-10">
@@ -97,7 +97,7 @@
               {% endif %}
             </div>
           </div> 
-              
+
           <div class="form-group">
             <label class="col-sm-2 control-label" for="input-order-status">{{entry_shipping_method}}</label>
             <div class="col-sm-10">
@@ -113,7 +113,20 @@
               {{ free_shipping_disabled }}
             </div> 
           </div>
-          
+
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-order-status">{{entry_allowed_customer_type}}</label>
+            <div class="col-sm-10">
+              <select name="dibseasy_allowed_customer_type" id="input-allowed_customer_type" class="form-control">
+                    <option value="b2c" {{b2c_selected }}>  {{text_b2c}} </option>
+                    <option value="b2b" {{b2b_selected }}>  {{text_b2b}} </option>
+                    <option value="b2c_b2b_b2c" {{ b2c_b2b_b2c_selected }}>  {{text_b2c_b2b_b2c}} </option>
+                    <option value="b2b_b2c_b2b" {{ b2b_b2c_b2b_selected }}>  {{text_b2b_b2c_b2b}} </option>
+              </select>
+              {{ free_shipping_disabled }}
+            </div> 
+          </div>
+
           <div class="form-group">
             <label class="col-sm-2 control-label" for="input-order-status">{{ entry_testmode }}</label>
             <div class="col-sm-10">
@@ -128,7 +141,7 @@
               </select>
             </div>
           </div>
-          
+
           <div class="form-group">
             <label class="col-sm-2 control-label" for="input-order-status">{{ entry_language }}</label>
             <div class="col-sm-10">
@@ -140,7 +153,7 @@
               </select>
             </div>
           </div>
-              
+
           <div class="form-group">
             <label class="col-sm-2 control-label" for="input-order-status">{{ entry_status }}</label>
             <div class="col-sm-10">
@@ -155,10 +168,10 @@
               </select>
             </div>
           </div>
-        
+
         </form>
       </div>
     </div>
   </div>
 </div>
-{{ footer }} 
+{{ footer }}
