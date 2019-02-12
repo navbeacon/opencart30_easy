@@ -12,7 +12,7 @@ $_['text_flat_shipping'] = 'Flat shipping';
 $_['text_b2c'] = 'B2C only';
 $_['text_b2b'] = 'B2B only';
 $_['text_b2c_b2b_b2c'] = 'B2C & B2B (defaults to B2C)';
-$_['text_b2b_b2c_b2b'] = 'B2B & B2B (defaults to B2B)';
+$_['text_b2b_b2c_b2b'] = 'B2B & B2C (defaults to B2B)';
 
 // Entry
 $_['entry_total']		 = 'Total';
