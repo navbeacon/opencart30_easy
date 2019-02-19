@@ -1,18 +1,16 @@
 <?php
 
-class ControllerCheckoutDibseasy extends Controller { 
-    
-    
+class ControllerCheckoutDibseasy extends Controller {
+
+
     public function index() {
         	$this->load->language('checkout/checkout');
-
 		$this->document->setTitle($this->language->get('heading_title'));
-
 		$this->document->addScript('catalog/view/javascript/jquery/datetimepicker/moment.js');
 		$this->document->addScript('catalog/view/javascript/jquery/datetimepicker/bootstrap-datetimepicker.min.js');
 		$this->document->addStyle('catalog/view/javascript/jquery/datetimepicker/bootstrap-datetimepicker.min.css');
-
-		$data['breadcrumbs'] = array();
+                $this->document->addStyle('catalog/view/theme/default/stylesheet/easy_checkout.css');
+ 		$data['breadcrumbs'] = array();
 
 		$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('text_home'),
@@ -30,34 +28,30 @@ class ControllerCheckoutDibseasy extends Controller {
 		);
 
 		$data['heading_title'] = $this->language->get('heading_title');
-
 		$data['text_checkout_option'] = sprintf($this->language->get('text_checkout_option'), 1);
 		$data['text_checkout_account'] = sprintf($this->language->get('text_checkout_account'), 2);
 		$data['text_checkout_payment_address'] = sprintf($this->language->get('text_checkout_payment_address'), 2);
 		$data['text_checkout_shipping_address'] = sprintf($this->language->get('text_checkout_shipping_address'), 3);
 		$data['text_checkout_shipping_method'] = sprintf($this->language->get('text_checkout_shipping_method'), 4);
-		
 		if ($this->cart->hasShipping()) {
 			$data['text_checkout_payment_method'] = sprintf($this->language->get('text_checkout_payment_method'), 5);
 			$data['text_checkout_confirm'] = sprintf($this->language->get('text_checkout_confirm'), 6);
 		} else {
 			$data['text_checkout_payment_method'] = sprintf($this->language->get('text_checkout_payment_method'), 3);
-			$data['text_checkout_confirm'] = sprintf($this->language->get('text_checkout_confirm'), 4);	
+			$data['text_checkout_confirm'] = sprintf($this->language->get('text_checkout_confirm'), 4);
 		}
 
                 $this->load->model('extension/payment/dibseasy');
                 $dibs_model = $this->model_extension_payment_dibseasy;
-                
-                $checkoutData = $dibs_model->getCheckoutConfirm();
-                
+                $checkoutData = $dibs_model->getCheckoutData();
                 $data['paymentId'] = '';
-            
-                if($paymentId = $this->model_extension_payment_dibseasy->initCheckout()) {
+                if($paymentId = $this->model_extension_payment_dibseasy->getPaymentId()) {
                     $data['paymentId'] = $paymentId;
                 }else {
                     $data['initerror'] = 'An error occurred during payment initialization';
+                    $this->response->redirect($this->url->link('checkout/cart', '', true));
                 }
-            
+
                 if (isset($this->session->data['error'])) {
 			$data['error_warning'] = $this->session->data['error'];
 			unset($this->session->data['error']);
@@ -72,9 +66,7 @@ class ControllerCheckoutDibseasy extends Controller {
 		} else {
 			$data['account'] = '';
 		}
-
 		$data['shipping_required'] = $this->cart->hasShipping();
-
 		$data['column_left'] = $this->load->controller('common/column_left');
 		$data['column_right'] = $this->load->controller('common/column_right');
 		$data['content_top'] = $this->load->controller('common/content_top');
@@ -83,5 +75,40 @@ class ControllerCheckoutDibseasy extends Controller {
 		$data['header'] = $this->load->controller('common/header');
     		$this->response->setOutput($this->load->view('checkout/dibseasy', array_merge($data, $checkoutData)));
 	}
-    
+
+    public function updateview() {
+       $this->load->model('extension/payment/dibseasy');
+       $action = $this->request->post['action'];
+       $this->load->language('checkout/dibseasy');
+
+        try {
+            switch($action) {
+                case 'set-shipping-method':
+                     $code = $this->request->post['code'];
+                     $this->model_extension_payment_dibseasy->setShippingMethod($code);
+                   break;
+                case 'start':
+                    break;
+                case 'address-changed':
+                      $this->model_extension_payment_dibseasy->setShippingAddress();
+                   break;
+            }
+            $data['shipping_methods'] = $this->model_extension_payment_dibseasy->getShippingMethods();
+            $data['totals'] = $this->model_extension_payment_dibseasy->getTotals();
+            $data['code'] = isset($this->session->data['shipping_method']['code']) ? $this->session->data['shipping_method']['code'] : null;
+            $data['checkout_url'] = $this->url->link('checkout/checkout&from_easy=1', '', true);
+            $data['button_checkout_label'] = $this->language->get('button_checkout_label');
+            $data['order_summary_label'] = $this->language->get('order_summary_label');
+            $data['shipping_methods_label'] = $this->language->get('shipping_methods_label');
+            $data['shipping_total_label'] = $this->language->get('shipping_total_label');
+            $data['currency_code'] = $this->session->data['currency'];
+            $result = array('outputHtml' => $this->load->view('checkout/dibseasy_totals', $data));
+        } catch(Exception $e) {
+            $this->session->data['error'] = $e->getMessage();
+            $result = array('outputHtml' => [], 'exception' => 1, 'message' => $e->getMessage());
+            unset($this->session->data['dibseasy']['paymentid']);
+        }
+        echo json_encode($result);
+    }
+
 }

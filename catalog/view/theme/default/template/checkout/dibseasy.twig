@@ -23,9 +23,7 @@
       {% if initerror %}
         <div class = "alert alert-danger alert-dismissible"> {{ initerror }} </div>
       {% endif %}
-        
       <h1>{{ heading_title }}</h1>
-        
             <table class="table table-bordered table-hover">
                 <thead>
                   <tr>
@@ -44,7 +42,6 @@
                           <br />
                           &nbsp;<small> - {{ option.name }}: {{ option.value }}</small>
                           {% endfor %}
-                          
                           {% if product.recurring %}
                           <br />
                           <span class="label label-info">{{ text_recurring_item }}</span> <small> {{ product.recurring }}</small>
@@ -56,7 +53,6 @@
                     <td class="text-right"> {{ product.total }}   </td>
                   </tr>
                   {% endfor %}
-                  
                   {% for voucher in vouchers %}
                   <tr>
                     <td class="text-left">{{ voucher.description }} </td>
@@ -68,17 +64,17 @@
                  {% endfor %}
                 </tbody>
                 <tfoot>
-                   {% for total in totals %}
-                    <tr>
-                        <td colspan="4" class="text-right"><strong> {{ total.title }}:</strong></td>
-                        <td class="text-right">{{ total.text }}</td>
-                    </tr>
-                   {% endfor %}
-                </tfoot>
+             </tfoot>
             </table>
-          {% if paymentId %}
+          <div id="dibs-easy-controls"></div>
+        <div id="dibs-easy-window">
+         {% if paymentId %}
             <div id="dibs-complete-checkout"></div>
           {% endif %}
+        <div id="dibseasy-switch-checkout-mobile"> 
+            <button id="dibseasy-switch-checkout-mobile" type="submit" class="btn btn-outline-primary">{{button_checkout_label}}</button>
+        </div>
+        </div>
     </div>
     {{ column_right }}</div>
 </div>
@@ -92,19 +88,23 @@
                language: "{{ language }}",
 	   };
 	  var checkout = new Dibs.Checkout(checkoutOptions);
-          console.log(checkoutOptions);
-	  //this is the event that the merchant should listen to redirect to the “payment-is-ok” page
-                checkout.on('payment-completed', function(response) {
-                       /*
-                       Response:
-                                      status: boolean,
-                                      paymentId: string (GUID without dashes)
-                       */
+              checkout.on('payment-completed', function(response) {
                        var respObject = JSON.stringify(response);
                        var paymentId = response.paymentId;
                        var checkoutUrl = "{{ checkoutconfirmurl}} &paymentId=" + paymentId;
                        window.location = checkoutUrl;
-   		});	
+   		});
+
+                checkout.on('address-changed', function(response) {
+                    customerIsLoggedIn = true;
+                    updateView({'action':'address-changed'});
+                });
+
+                checkout.on('payment-completed', function(response) {
+                    window.location = 'index.php?route=extension/payment/dibseasy/confirm' + '&paymentId=' + response.paymentId;;
+                });
+
+                /*
                 cartRemove = cart.remove;
                 cart.remove = function(key) {
             	$.ajax({
@@ -136,4 +136,19 @@
 			}
 		});
             };
+            */
+      updateView({'action':'start'});
+
+      function updateView (params) {
+          ct = this;
+          $.post('index.php?route=checkout/dibseasy/updateview', params ,function() {
+          }).done(function(result) {
+            var result = JSON.parse(result);
+            if(result.exception == 1) {
+                window.location.href = 'index.php?route=checkout/cart';
+            }
+            $('#dibs-easy-controls').html(result.outputHtml);
+            ct.checkout.thawCheckout();
+       });
+    }
 </script>
