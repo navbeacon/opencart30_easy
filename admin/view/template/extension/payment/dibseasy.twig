@@ -25,15 +25,6 @@
       </div>
       <div class="panel-body">
         <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-payment" class="form-horizontal">
-          <div class="form-group required">
-            <label class="col-sm-2 control-label" for="input-total">{{ entry_dibseasy_merchant }}</label>
-            <div class="col-sm-10">
-              <input type="text" name="dibseasy_merchant" value="{{ dibseasy_merchant }}" id="input-total" class="form-control" />
-              {% if error_merchant %}
-                <div class="text-danger">{{ error_merchant }}</div>
-              {% endif %}
-            </div>
-          </div> 
           <div class="form-group">
             <label class="col-sm-2 control-label" style="font-size: 15px;">Live key</label>
           <div class="col-sm-10">
@@ -99,22 +90,6 @@
           </div> 
 
           <div class="form-group">
-            <label class="col-sm-2 control-label" for="input-order-status">{{entry_shipping_method}}</label>
-            <div class="col-sm-10">
-              <select name="dibseasy_shipping_method" id="input-order-status" class="form-control">
-                    {% if dibseasy_shipping_method == 'free' %}
-                        <option value="free" selected="selected"> {{ text_free_shipping }}</option>
-                        <option value="flat">{{ text_flat_shipping }} </option>
-                    {% else %}
-                        <option value="free"> {{text_free_shipping}} </option>
-                        <option value="flat" selected="selected">{{ text_flat_shipping }}</option>
-                    {% endif %}
-              </select>
-              {{ free_shipping_disabled }}
-            </div> 
-          </div>
-
-          <div class="form-group">
             <label class="col-sm-2 control-label" for="input-order-status">{{entry_allowed_customer_type}}</label>
             <div class="col-sm-10">
               <select name="dibseasy_allowed_customer_type" id="input-allowed_customer_type" class="form-control">
@@ -159,6 +134,21 @@
             <div class="col-sm-10">
               <select name="dibseasy_status" id="input-status" class="form-control">
                    {% if dibseasy_status %}
+                        <option value="1" selected="selected"> {{text_enabled}}</option>
+                        <option value="0"> {{text_disabled}} </option>
+                    {% else %}
+                        <option value="1"> {{text_enabled}} </option>
+                        <option value="0" selected="selected"> {{text_disabled}}</option>
+                   {% endif %}
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-order-status">{{ entry_debug }}</label>
+            <div class="col-sm-10">
+              <select name="dibseasy_debug_mode" id="input-status" class="form-control">
+                   {% if dibseasy_debug_mode %}
                         <option value="1" selected="selected"> {{text_enabled}}</option>
                         <option value="0"> {{text_disabled}} </option>
                     {% else %}

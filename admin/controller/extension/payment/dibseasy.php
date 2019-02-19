@@ -47,7 +47,7 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                 $data['text_b2b'] = $this->language->get('text_b2b');
                 $data['text_b2c_b2b_b2c'] = $this->language->get('text_b2c_b2b_b2c');
                 $data['text_b2b_b2c_b2b'] = $this->language->get('text_b2b_b2c_b2b');
-                
+
 		if (isset($this->error['warning'])) {
 			$data['error_warning'] = $this->error['warning'];
 		} else {
@@ -163,6 +163,12 @@ class ControllerExtensionPaymentDibseasy extends Controller {
 			$data['dibseasy_language'] = $this->config->get('dibseasy_language');
 		}
 
+                if(isset($this->request->post['dibseasy_debug_mode'])) {
+                    $data['dibseasy_debug_mode'] = $this->request->post['dibseasy_debug_mode'];
+                } else {
+                    $data['dibseasy_debug_mode'] = $this->config->get('dibseasy_debug_mode');
+                }
+
 		$data['error_merchant'] = '';
                 if(isset($this->error['error_merchant'])) {
                     $data['error_merchant'] = $this->error['error_merchant']; 
@@ -264,7 +270,7 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                 if(isset($this->request->post['dibseasy_terms_and_conditions'])) {
                     $pattern = '/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/';
                     $subject = $this->request->post['dibseasy_terms_and_conditions'];
-                
+
                     if(!preg_match($pattern, $subject)) {
                         $this->error['easy_term_and_conditions'] = 'Terms and conditions url empty or wrong format!';
                     }

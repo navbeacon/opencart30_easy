@@ -5,17 +5,31 @@
   <version>1.0</version>
   <author>DIBS</author>
   <link>http://www.opencart.com</link>
-  <file path="catalog/controller/checkout/checkout.php">
-	<operation>
+<file path="catalog/controller/checkout/cart.php">
+<operation>
       <search trim="true|false">
-        <![CDATA[public function index() {]]>
+        <![CDATA[$this->response->setOutput($this->load->view('checkout/cart', $data));]]>
       </search>
-      <add position="after" offset="0">
+      <add position="before" offset="0">
         <![CDATA[$this->load->model('setting/setting'); 
-           $settings = $this->model_setting_setting->getSetting('dibseasy');
-           if(isset($settings['dibseasy_status']) && $settings['dibseasy_status'] == 1) {
-           $this->response->redirect($this->url->link('checkout/dibseasy', '', true));}]]>
+                $settings = $this->model_setting_setting->getSetting('dibseasy');
+                if(isset($settings['dibseasy_status']) && $settings['dibseasy_status'] == 1) {
+                    $data['checkout'] = $this->url->link('checkout/dibseasy', '', true);}]]>
       </add>
     </operation>
-  </file>
+</file>
+
+<file path="catalog/controller/common/cart.php">
+  <operation>
+      <search trim="true|false">
+        <![CDATA[$this->load->view('common/cart', $data);]]>
+      </search>
+      <add position="before" offset="0">
+        <![CDATA[$this->load->model('setting/setting');
+                $settings = $this->model_setting_setting->getSetting('dibseasy');
+                if(isset($settings['dibseasy_status']) && $settings['dibseasy_status'] == 1) {
+                $data['checkout'] = $this->url->link('checkout/dibseasy', '', true);}]]>
+      </add>
+    </operation>
+</file>
 </modification>

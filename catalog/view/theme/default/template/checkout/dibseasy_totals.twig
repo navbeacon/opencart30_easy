@@ -18,36 +18,29 @@
         </div>
     </div>
   {% endif %}
-
 <div id="dibs-easy-ordersummary-title" class="dibs-easy-ctrl-title">{{order_summary_label}}</div>
 <table id="totals-table"> 
     <tbody>
- 
   {% for total in totals.totals %}
       <tr id="tr-{{ total.code }}">
-         
          {% if total.code == "sub_total" %}
             <td class="dibs-easy-totals-lable" id="dibs-easy-totals-lable-{{ total.code }}" id="dibs-easy-totals-lable-{{ total.code }}">{{total.title }}</td>  
             <td class="dibs-easy-totals-total" id="dibs-easy-totals-{{ total.code }}" id="dibs-easy-totals-{{ total.code }}" align="right">{{ total.value }}</td>
          {% endif %}
-        
          {% if total.code == "shipping" %}
             <td class="dibs-easy-totals-lable" id="dibs-easy-totals-lable-{{ total.code }}" id="dibs-easy-totals-lable-{{ total.code }}">{{ shipping_total_label }}</td>  
             <td class="dibs-easy-totals-total" id="dibs-easy-totals-{{ total.code }}" id="dibs-easy-totals-{{ total.code }}" align="right">{{ total.title }}</td>
          {% endif %}
-         
          {% if total.code == "total" %}
             <td class="dibs-easy-totals-lable" id="dibs-easy-totals-lable-{{ total.code }}" id="dibs-easy-totals-lable-{{ total.code }}">{{total.title }}</td>  
             <td class="dibs-easy-totals-total" id="dibs-easy-totals-{{ total.code }}" id="dibs-easy-totals-{{ total.code }}" align="right">
             <span id="dibs-easy-grand-total-currency">{{ currency_code }}</span><span id="dibs-easy-grand-total-value">{{ total.value }}</span>  
             </td>
          {% endif %}
-         
       </tr>
    {% endfor %}
   </tbody>
  </table>
-  
 <div id="dibseasy-switch-checkout-screen">
      <form method="POST" action="{{ checkout_url }}">
          <button type="submit" class="btn btn-outline-primary">{{button_checkout_label}}</button>

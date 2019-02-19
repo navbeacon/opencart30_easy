@@ -459,7 +459,6 @@ class ModelExtensionPaymentDibseasy extends Model {
             } 
             $this->setPaymentMethod();
             if(isset($this->session->data['dibseasy']['paymentid']) && $this->session->data['dibseasy']['paymentid']) {
-                error_log('paymentid from session');
               return $this->session->data['dibseasy']['paymentid'];
             }
             if($this->config->get('dibseasy_testmode') == 0) {
@@ -512,9 +511,11 @@ class ModelExtensionPaymentDibseasy extends Model {
                 $this->debug('data sended to Easy API', $postData);
                 
             }
-            if($this->config->get('dibseasy_debug')) {
+
+            if($this->config->get('dibseasy_debug_mode')) {
                    $this->logger->write('Curl request:');
                    $this->logger->write($data);
+            } else {
             }
 
             $response = curl_exec($curl);
@@ -1028,8 +1029,12 @@ class ModelExtensionPaymentDibseasy extends Model {
                $this->session->data['payment_address']['country'] = $this->getCountryName($paymentObject->payment->consumer->shippingAddress->country);
                $this->session->data['payment_address']['country_id'] = $this->getCountryId($paymentObject->payment->consumer->shippingAddress->country);
            }
+       }
 
-           //$this->session->data['payment_address']['address_format'] = 'foramt';
+       public function start() {
+           if(isset($this->session->data['dibseasy']['paymentid'])) {
+            $this->updateCart();
+           }
        }
 
        protected function getApiUrlPrefix() {

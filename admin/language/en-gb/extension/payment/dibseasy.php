@@ -15,7 +15,7 @@ $_['text_b2c_b2b_b2c'] = 'B2C & B2B (defaults to B2C)';
 $_['text_b2b_b2c_b2b'] = 'B2B & B2C (defaults to B2B)';
 
 // Entry
-$_['entry_total']		 = 'Total';
+$_['entry_total']        = 'Total';
 $_['entry_order_status'] = 'Order Status';
 $_['entry_geo_zone']	 = 'Geo Zone';
 $_['entry_status']	 = 'Status';
@@ -29,7 +29,6 @@ $_['entry_testmode_description'] = 'Set it depending on live or test secret key'
 $_['entry_debug_description'] = 'Debug info will be written in the log file: system/storage/logs/dibs.easy.log';
 $_['entry_language'] = 'Language';
 $_['entry_dibseasy_terms_and_conditions'] = ' Terms & conditions';
-$_['entry_dibseasy_merchant'] = 'DIBS Merchant ID';
 $_['entry_dibseasy_checkoutkey'] = 'Checkout key';
 $_['entry_dibseasy_checkoutk_live'] = 'Checkout key';
 $_['entry_shipping_method'] = 'Shipping method:';
@@ -46,6 +45,5 @@ $_['text_danish']    = 'Danish';
 $_['help_total'] = 'The checkout total the order must reach before this payment method becomes active.';
 
 // Error
-$_['error_merchant']  = 'Merchant is required';
 $_['checkout_key'] = 'Checkout key is required';
 $_['free_shipping_disabled'] = 'Free shipping is disabled, please enable it first';

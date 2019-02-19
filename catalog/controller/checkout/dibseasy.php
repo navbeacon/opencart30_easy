@@ -88,6 +88,7 @@ class ControllerCheckoutDibseasy extends Controller {
                      $this->model_extension_payment_dibseasy->setShippingMethod($code);
                    break;
                 case 'start':
+                      $this->model_extension_payment_dibseasy->start();
                     break;
                 case 'address-changed':
                       $this->model_extension_payment_dibseasy->setShippingAddress();
@@ -96,7 +97,7 @@ class ControllerCheckoutDibseasy extends Controller {
             $data['shipping_methods'] = $this->model_extension_payment_dibseasy->getShippingMethods();
             $data['totals'] = $this->model_extension_payment_dibseasy->getTotals();
             $data['code'] = isset($this->session->data['shipping_method']['code']) ? $this->session->data['shipping_method']['code'] : null;
-            $data['checkout_url'] = $this->url->link('checkout/checkout&from_easy=1', '', true);
+            $data['checkout_url'] = $this->url->link('checkout/checkout', '', true);
             $data['button_checkout_label'] = $this->language->get('button_checkout_label');
             $data['order_summary_label'] = $this->language->get('order_summary_label');
             $data['shipping_methods_label'] = $this->language->get('shipping_methods_label');
