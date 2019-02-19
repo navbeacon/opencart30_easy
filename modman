@@ -1,13 +1,16 @@
 admin/controller/extension/payment/dibseasy.php       admin/controller/extension/payment/dibseasy.php
 admin/language/en-gb/extension/payment/dibseasy.php   admin/language/en-gb/extension/payment/dibseasy.php 
-admin/view/template/extension/payment/dibseasy.twig    admin/view/template/extension/payment/dibseasy.twig
+catalog/language/en-gb/checkout/dibseasy.php          catalog/language/en-gb/checkout/dibseasy.php
+admin/view/template/extension/payment/dibseasy.twig   admin/view/template/extension/payment/dibseasy.twig
 catalog/controller/extension/payment/dibseasy.php     catalog/controller/extension/payment/dibseasy.php
 catalog/language/en-gb/extension/payment/dibseasy.php catalog/language/en-gb/extension/payment/dibseasy.php   
 catalog/model/extension/payment/dibseasy.php          catalog/model/extension/payment/dibseasy.php 
 catalog/controller/checkout/dibseasy.php catalog/controller/checkout/dibseasy.php
 catalog/view/theme/default/template/checkout/dibseasy.twig catalog/view/theme/default/template/checkout/dibseasy.twig
+catalog/view/theme/default/template/checkout/dibseasy_totals.twig catalog/view/theme/default/template/checkout/dibseasy_totals.twig
 admin/view/image/payment/dibs.png admin/view/image/payment/dibs.png
 system/dibseasy.ocmod.xml system/dibseasy.ocmod.xml
 catalog/view/theme/default/template/common/dibseasy_success.twig catalog/view/theme/default/template/common/dibseasy_success.twig
 catalog/controller/checkout/dibseasy_success.php catalog/controller/checkout/dibseasy_success.php 
 catalog/view/theme/default/template/mail/dibseasy_order.twig catalog/view/theme/default/template/mail/dibseasy_order.twig
+catalog/view/theme/default/stylesheet/easy_checkout.css catalog/view/theme/default/stylesheet/easy_checkout.css
