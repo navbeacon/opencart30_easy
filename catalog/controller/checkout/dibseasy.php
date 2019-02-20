@@ -5,14 +5,10 @@ class ControllerCheckoutDibseasy extends Controller {
 
     public function index() {
         	$this->load->language('checkout/checkout');
-		$this->document->setTitle($this->language->get('heading_title'));
-		$this->document->addScript('catalog/view/javascript/jquery/datetimepicker/moment.js');
-		$this->document->addScript('catalog/view/javascript/jquery/datetimepicker/bootstrap-datetimepicker.min.js');
-		$this->document->addStyle('catalog/view/javascript/jquery/datetimepicker/bootstrap-datetimepicker.min.css');
-                $this->document->addStyle('catalog/view/theme/default/stylesheet/easy_checkout.css');
+	        $this->document->setTitle($this->language->get('heading_title'));
+	        $this->document->addStyle('catalog/view/theme/default/stylesheet/easy_checkout.css');
  		$data['breadcrumbs'] = array();
-
-		$data['breadcrumbs'][] = array(
+        	$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('text_home'),
 			'href' => $this->url->link('common/home')
 		);
