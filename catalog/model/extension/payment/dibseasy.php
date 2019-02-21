@@ -392,33 +392,6 @@ class ModelExtensionPaymentDibseasy extends Model {
 		$this->session->data['order_id'] = $this->model_checkout_order->addOrder($order_data);
 	}
  
-        protected function setShippingMethodOld() {
-            if ($this->validateCart() && $this->cart->hasShipping()) {
-                $json['shipping_methods'] = array();
-                $this->load->model('setting/extension');
-                $results = $this->model_setting_extension->getExtensions('shipping');
-                $shippingMethod = $this->config->get('dibseasy_shipping_method') != null ? 
-                $this->config->get('dibseasy_shipping_method') : self::SHIPPING_CODE;
-                if ($this->config->get('shipping_'. $shippingMethod .'_status')) {
-                       $this->load->model('extension/shipping/' . $shippingMethod);
-                       $quote = $this->{'model_extension_shipping_' . $shippingMethod}->getQuote(array('country_id'=>0, 'zone_id'=>0));
-                       if ($quote) {
-                                $json['shipping_methods'][$shippingMethod] = array(
-                                        'title'      => $quote['title'],
-                                        'quote'      => $quote['quote'],
-                                        'sort_order' => $quote['sort_order'],
-                                        'error'      => $quote['error']
-                                );
-                        }
-                }
-                
-                if($json['shipping_methods']) {
-                    $this->session->data['shipping_method'] = $json['shipping_methods'][$shippingMethod]['quote'][$shippingMethod];
-                }
-                
-            }
-        }
-
         protected function validateCart() {
             // Validate cart has products and has stock.
             if ((!$this->cart->hasProducts() && empty($this->session->data['vouchers'])) || (!$this->cart->hasStock() && !$this->config->get('config_stock_checkout'))) {
@@ -445,21 +418,17 @@ class ModelExtensionPaymentDibseasy extends Model {
         }
 
         public function getPaymentId() {
-            /*$transactionId = isset($this->session->data['dibseasy']['paymentid']) 
-                    ? $this->session->data['dibseasy']['paymentid'] : null;
-            if(!$this->getTransactionInfo($transactionId)) {
-               unset($this->session->data['dibseasy']['paymentid']);
-            }
-            */
-            
-            //unset($this->session->data['dibseasy']['paymentid']);
-            
             if(!$this->cart->hasProducts()) {
                unset($this->session->data['dibseasy']['paymentid']);
             } 
             $this->setPaymentMethod();
-            if(isset($this->session->data['dibseasy']['paymentid']) && $this->session->data['dibseasy']['paymentid']) {
-              return $this->session->data['dibseasy']['paymentid'];
+            if(isset($this->session->data['dibseasy']['paymentid']) &&
+                    $this->session->data['dibseasy']['paymentid']) {
+              // Easy paymentid expires every 2 hours
+              $timeCreation = $this->session->data['dibseasy']['paymentid_time_creation'];
+              if(time() - $timeCreation < (3600 * 2)) {
+               return $this->session->data['dibseasy']['paymentid'];
+             }
             }
             if($this->config->get('dibseasy_testmode') == 0) {
                 $url = self::PAYMENT_API_LIVE_URL;
@@ -469,6 +438,7 @@ class ModelExtensionPaymentDibseasy extends Model {
             $response = $this->makeCurlRequest($url, $this->createRequestObject());
             if($response && isset($response->paymentId)) {
                 $this->session->data['dibseasy']['paymentid'] = $response->paymentId;
+                $this->session->data['dibseasy']['paymentid_time_creation'] = time();
                 return $response->paymentId;
             } else {
                 $this->logger->write($response);

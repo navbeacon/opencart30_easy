@@ -107,5 +107,4 @@ class ControllerCheckoutDibseasy extends Controller {
         }
         echo json_encode($result);
     }
-
 }
