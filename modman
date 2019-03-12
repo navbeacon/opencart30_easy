@@ -14,3 +14,5 @@ catalog/view/theme/default/template/common/dibseasy_success.twig catalog/view/th
 catalog/controller/checkout/dibseasy_success.php catalog/controller/checkout/dibseasy_success.php 
 catalog/view/theme/default/template/mail/dibseasy_order.twig catalog/view/theme/default/template/mail/dibseasy_order.twig
 catalog/view/theme/default/stylesheet/easy_checkout.css catalog/view/theme/default/stylesheet/easy_checkout.css
+catalog/view/theme/default/image/dibs-shipping-selector-non-active.png catalog/view/theme/default/image/dibs-shipping-selector-non-active.png
+catalog/view/theme/default/image/dibs-shipping-selector-active.png catalog/view/theme/default/image/dibs-shipping-selector-active.png

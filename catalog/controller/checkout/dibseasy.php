@@ -6,7 +6,15 @@ class ControllerCheckoutDibseasy extends Controller {
     public function index() {
         	$this->load->language('checkout/checkout');
 	        $this->document->setTitle($this->language->get('heading_title'));
-	        $this->document->addStyle('catalog/view/theme/default/stylesheet/easy_checkout.css');
+                
+                if (file_exists(DIR_APPLICATION . 'view/theme/' . $this->config->get('config_template') . '/stylesheet/easy_checkout.css')) {
+			$stylesheet = 'catalog/view/theme/' . $this->config->get('config_template') . '/stylesheet/easy_checkout.css';
+		} else {
+			$stylesheet = 'catalog/view/theme/default/stylesheet/easy_checkout.css';
+		}
+		
+		$this->document->addStyle($stylesheet);
+                
  		$data['breadcrumbs'] = array();
         	$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('text_home'),
