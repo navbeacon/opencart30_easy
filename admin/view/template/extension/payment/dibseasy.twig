@@ -87,7 +87,14 @@
                 <div class="text-danger">{{ error_easy_term_and_conditions }}</div>
               {% endif %}
             </div>
-          </div> 
+          </div>
+
+         <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-checkout_button_url"><span data-toggle="tooltip" title="{{entry_dibseasy_otherpayment_button_url_comment}}">{{entry_dibseasy_otherpayment_button_url}}</span></label>
+            <div class="col-sm-10">
+              <input type="text" name="dibseasy_otherpayment_button_url" value="{{dibseasy_otherpayment_button_url}}" id="input-checkout_button_url" class="form-control" />
+            </div>
+         </div>
 
           <div class="form-group">
             <label class="col-sm-2 control-label" for="input-order-status">{{entry_allowed_customer_type}}</label>
@@ -98,7 +105,6 @@
                     <option value="b2c_b2b_b2c" {{ b2c_b2b_b2c_selected }}>  {{text_b2c_b2b_b2c}} </option>
                     <option value="b2b_b2c_b2b" {{ b2b_b2c_b2b_selected }}>  {{text_b2b_b2c_b2b}} </option>
               </select>
-              {{ free_shipping_disabled }}
             </div> 
           </div>
 
@@ -144,7 +150,7 @@
             </div>
           </div>
 
-          <div class="form-group">
+        <!--  <div class="form-group">
             <label class="col-sm-2 control-label" for="input-order-status">{{ entry_debug }}</label>
             <div class="col-sm-10">
               <select name="dibseasy_debug_mode" id="input-status" class="form-control">
@@ -157,7 +163,7 @@
                    {% endif %}
               </select>
             </div>
-          </div>
+          </div> -->
 
         </form>
       </div>

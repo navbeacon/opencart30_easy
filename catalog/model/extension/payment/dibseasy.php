@@ -2,7 +2,6 @@
 class ModelExtensionPaymentDibseasy extends Model {
 
     const METHOD_CODE = 'dibseasy';
-    const SHIPPING_CODE = 'free';
     const PAYMENT_API_TEST_URL = 'https://test.api.dibspayment.eu/v1/payments';
     const PAYMENT_API_LIVE_URL = 'https://api.dibspayment.eu/v1/payments';
     const PAYMENT_TRANSACTION_URL_PATTERN_TEST = 'https://test.api.dibspayment.eu/v1/payments/{transactionId}';
@@ -117,7 +116,7 @@ class ModelExtensionPaymentDibseasy extends Model {
 
         public function createOrder() {
                 $this->session->data['comment'] = '';
-                
+
     		// Set totals
                 $totals = array();
                 $taxes = $this->cart->getTaxes();
@@ -183,18 +182,19 @@ class ModelExtensionPaymentDibseasy extends Model {
 			$order_data['email'] = $customer_info['email'];
 			$order_data['telephone'] = $customer_info['telephone'];
 			$order_data['custom_field'] = json_decode($customer_info['custom_field'], true);
-		} else { //if (isset($this->session->data['guest'])) {    
-                    
-                                $order_data['customer_id'] = 0;
-				$order_data['customer_group_id'] = 1;
-				$order_data['firstname'] = $this->session->data['shipping_address']['firstname'];
-				$order_data['lastname'] =$this->session->data['shipping_address']['lastname'];
-				$order_data['email'] = 'mbe@ciklum.com';
-				$order_data['telephone'] = '';
-				$order_data['fax'] = '';
+		} else { //if (isset($this->session->data['guest'])) {  
+                               //unset($this->session->data['payment_address']); 
+                               //unset($this->session->data['shipping_address']); 
+                               $order_data['customer_id'] = 0;
+			       $order_data['customer_group_id'] = 1;
+			       $order_data['firstname'] = $this->session->data['shipping_address']['firstname'];
+                               $order_data['lastname'] = $this->session->data['shipping_address']['lastname'];
+			       $order_data['email'] = $this->session->data['shipping_address']['email'];
+			       $order_data['telephone'] = $this->session->data['payment_address']['telephone'];
+			       $order_data['fax'] = '';
                         /*
                         $order_data['customer_id'] = 0;
-			$order_data['customer_group_id'] = $this->session->data['guest']['customer_group_id'];
+            		$order_data['customer_group_id'] = $this->session->data['guest']['customer_group_id'];
 			$order_data['firstname'] = $this->session->data['guest']['firstname'];
 			$order_data['lastname'] = $this->session->data['guest']['lastname'];
 			$order_data['email'] = $this->session->data['guest']['email'];
@@ -420,7 +420,7 @@ class ModelExtensionPaymentDibseasy extends Model {
         public function getPaymentId() {
             if(!$this->cart->hasProducts()) {
                unset($this->session->data['dibseasy']['paymentid']);
-            } 
+            }
             $this->setPaymentMethod();
             if(isset($this->session->data['dibseasy']['paymentid']) &&
                     $this->session->data['dibseasy']['paymentid']) {
@@ -447,6 +447,7 @@ class ModelExtensionPaymentDibseasy extends Model {
         }
 
         protected function setPaymentMethod() {
+             $this->load->language('extension/payment/dibseasy');
              $this->session->data['payment_method'] =  array(
 		'code'       => self::METHOD_CODE,
 		'title'      => $this->language->get('text_title'),
@@ -478,8 +479,7 @@ class ModelExtensionPaymentDibseasy extends Model {
             curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
             if($postData) {
                 curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($postData));
-                $this->debug('data sended to Easy API', $postData);
-                
+
             }
 
             if($this->config->get('dibseasy_debug_mode')) {
@@ -490,8 +490,6 @@ class ModelExtensionPaymentDibseasy extends Model {
 
             $response = curl_exec($curl);
             $info = curl_getinfo($curl);
-
-            $this->debug('respose from Easy Api', $response);
 
             $this->logger->write($info);
             if ($info['http_code'] == 401 || $info['http_code'] == 404 || $info['http_code'] == 403) {
@@ -631,18 +629,10 @@ class ModelExtensionPaymentDibseasy extends Model {
                   }
               }
 
-              $this->debug('totals', $totals['totals']);
-
               $totalPriceCalculated = 0;
               foreach($items as $total) {
                   $totalPriceCalculated += $total['grossTotalAmount'];
               }
-
-              $this->debug('totals price calculated', $totalPriceCalculated);
-              $this->debug('grand total', round($this->getGrandTotal()) * 100);
-
-              //$total = round($this->currency->format($order_info['total'], $order_info['currency_code'], '', false) * 100);
-              //$delta = $total - $totalPriceCalculated;
 
               if(isset($this->session->data['coupon'])) {
                    $items[] = array(
@@ -656,9 +646,6 @@ class ModelExtensionPaymentDibseasy extends Model {
                     'grossTotalAmount' => $delta,
                     'netTotalAmount' => $delta);
               } else {
-
-                //hack to avoid errors in row totals calculation
-
                 $total = round($this->getGrandTotal()) * 100;
 
                 if($total !=  $totalPriceCalculated) {
@@ -674,9 +661,7 @@ class ModelExtensionPaymentDibseasy extends Model {
                         'grossTotalAmount' => $delta,
                         'netTotalAmount' => $delta);
                 }
-
             }
-
             return $items;
         }
 
@@ -799,7 +784,7 @@ class ModelExtensionPaymentDibseasy extends Model {
 
                                 $quote = $this->{'model_extension_shipping_' . $result['code']}->getQuote($this->session->data['shipping_address']);
 
-                                if ($quote) {
+                                if ($quote['quote']) {
                                         $method_data[$result['code']] = array(
                                                 'title'      => $quote['title'],
                                                 'quote'      => $quote['quote'],
@@ -837,13 +822,18 @@ class ModelExtensionPaymentDibseasy extends Model {
                     if(isset($this->session->data['shipping_method'])) {
 
                         $sessinMethodIsInMethods = false;
+                        
                         foreach($method_data as $md) {
                               $quote = $md['quote'];
-                              $current = current($quote);
-                              $cd = $current['code'];
-                              if($cd == $this->session->data['shipping_method']['code']) {
-                                  $sessinMethodIsInMethods = true;
+                              foreach($quote as $current) {
+                              
+                                $cd = $current['code'];
+                                if($cd == $this->session->data['shipping_method']['code']) {
+                                     $sessinMethodIsInMethods = true;
+                                }
+                              
                               }
+
                         }
                         if(!$sessinMethodIsInMethods) {
                              $this->setShippingMethod($code);
@@ -870,23 +860,42 @@ class ModelExtensionPaymentDibseasy extends Model {
                 $this->load->model('setting/extension');
 
                 $shipping = explode('.', $shippingCode);
+                	// Shipping Methods
+			$method_data = array();
 
-                $results = $this->model_setting_extension->getExtensions('shipping');
-                if ($this->config->get('shipping_'. $shipping[0] .'_status')) {
-                       $this->load->model('extension/shipping/' . $shipping[0] );
-                       $quote = $this->{'model_extension_shipping_' . $shipping[0] }->getQuote(array('country_id'=>0, 'zone_id'=>0));
-                       if ($quote) {
-                                $json['shipping_methods'][$shipping[0] ] = array(
-                                        'title'      => $quote['title'],
-                                        'quote'      => $quote['quote'],
-                                        'sort_order' => $quote['sort_order'],
-                                        'error'      => $quote['error']
-                                );
-                        }
-                }
+			$this->load->model('setting/extension');
 
-                if($json['shipping_methods']) {
-                    $this->session->data['shipping_method'] = $json['shipping_methods'][$shipping[0]]['quote'][$shipping[1]];
+			$results = $this->model_setting_extension->getExtensions('shipping');
+
+			foreach ($results as $result) {
+				if ($this->config->get('shipping_' . $result['code'] . '_status')) {
+					$this->load->model('extension/shipping/' . $result['code']);
+
+					$quote = $this->{'model_extension_shipping_' . $result['code']}->getQuote($this->session->data['shipping_address']);
+
+					if ($quote) {
+						$method_data[$result['code']] = array(
+							'title'      => $quote['title'],
+							'quote'      => $quote['quote'],
+							'sort_order' => $quote['sort_order'],
+							'error'      => $quote['error']
+						);
+					}
+				}
+			}
+
+			$sort_order = array();
+
+			foreach ($method_data as $key => $value) {
+				$sort_order[$key] = $value['sort_order'];
+			}
+
+			array_multisort($sort_order, SORT_ASC, $method_data);
+
+			$this->session->data['shipping_methods'] = $method_data;
+
+                if($this->session->data['shipping_methods']) {
+                    $this->session->data['shipping_method'] = $this->session->data['shipping_methods'][$shipping[0]]['quote'][$shipping[1]];
                     $this->updateCart();
                 }
              }
@@ -928,54 +937,105 @@ class ModelExtensionPaymentDibseasy extends Model {
         * object and store in session 
         */
        public function setShippingAddress() {
-           $paymentid = $this->session->data['dibseasy']['paymentid'];
-           $paymentObject = $this->model_extension_payment_dibseasy->getPayment($paymentid);
+               $paymentid = $this->session->data['dibseasy']['paymentid'];
+               $paymentObject = $this->model_extension_payment_dibseasy->getPayment($paymentid);
 
-           if(isset($paymentObject->payment->consumer->privatePerson->firstName)) {
-             $this->session->data['shipping_address']['firstname'] = $paymentObject->payment->consumer->privatePerson->firstName; 
-           }
-           if($paymentObject->payment->consumer->privatePerson->lastName) {
-             $this->session->data['shipping_address']['lastname'] = $paymentObject->payment->consumer->privatePerson->lastName;
-           }
-           $this->session->data['shipping_address']['company'] = 'Ciklum';
+               if(isset($paymentObject->payment->consumer->company->name)) {
+                   if(isset($paymentObject->payment->consumer->company->contactDetails->firstName)) {
+                     $this->session->data['shipping_address']['firstname'] = $paymentObject->payment->consumer->company->contactDetails->firstName; 
+                   }
+                   if(isset($paymentObject->payment->consumer->company->contactDetails->lastName)) {
+                     $this->session->data['shipping_address']['lastname'] = $paymentObject->payment->consumer->company->contactDetails->lastName;
+                   }
 
-           if($paymentObject->payment->consumer->shippingAddress->addressLine1) {
-              $this->session->data['shipping_address']['address_1'] = $paymentObject->payment->consumer->shippingAddress->addressLine1;
-           }
+                   if(isset($paymentObject->payment->consumer->company->contactDetails->email)) {
+                     $this->session->data['shipping_address']['email'] = $paymentObject->payment->consumer->company->contactDetails->email;
+                   }
+               } else {
+                   if(isset($paymentObject->payment->consumer->privatePerson->firstName)) {
+                     $this->session->data['shipping_address']['firstname'] = $paymentObject->payment->consumer->privatePerson->firstName; 
+                   }
+                   if(isset($paymentObject->payment->consumer->privatePerson->lastName)) {
+                     $this->session->data['shipping_address']['lastname'] = $paymentObject->payment->consumer->privatePerson->lastName;
+                   }
+                   $this->session->data['shipping_address']['company'] = 'Ciklum';
+                   if(isset($paymentObject->payment->consumer->privatePerson->email)) {
+                     $this->session->data['shipping_address']['email'] = $paymentObject->payment->consumer->privatePerson->email;
+                   }
+               }
 
-	   $this->session->data['shipping_address']['address_2'] = '';
-	   
-           if($paymentObject->payment->consumer->shippingAddress->city) {
-              $this->session->data['shipping_address']['city'] = $paymentObject->payment->consumer->shippingAddress->city;
-           }
+               if($paymentObject->payment->consumer->shippingAddress->addressLine1) {
+                  $this->session->data['shipping_address']['address_1'] = $paymentObject->payment->consumer->shippingAddress->addressLine1;
+               }
 
-           if($paymentObject->payment->consumer->shippingAddress->postalCode) {
-              $this->session->data['shipping_address']['postcode'] = $paymentObject->payment->consumer->shippingAddress->postalCode;
-           }
+               $this->session->data['shipping_address']['address_2'] = '';
 
-           $this->session->data['shipping_address']['zone'] = 0;
+               if($paymentObject->payment->consumer->shippingAddress->city) {
+                  $this->session->data['shipping_address']['city'] = $paymentObject->payment->consumer->shippingAddress->city;
+               }
 
-           $this->session->data['shipping_address']['zone_id'] = 0;
+               if($paymentObject->payment->consumer->shippingAddress->postalCode) {
+                  $this->session->data['shipping_address']['postcode'] = $paymentObject->payment->consumer->shippingAddress->postalCode;
+               }
 
-           if($paymentObject->payment->consumer->shippingAddress->country) {
-               $this->session->data['shipping_address']['country'] = $this->getCountryName($paymentObject->payment->consumer->shippingAddress->country);
-               $this->session->data['shipping_address']['country_id'] = $this->getCountryId($paymentObject->payment->consumer->shippingAddress->country);
-           }
+               $this->session->data['shipping_address']['zone'] = 0;
 
-           $this->setPaymentAddress();
+               $this->session->data['shipping_address']['zone_id'] = 0;
+
+               if($paymentObject->payment->consumer->shippingAddress->country) {
+                   $this->session->data['shipping_address']['country'] = $this->getCountryName($paymentObject->payment->consumer->shippingAddress->country);
+                   $this->session->data['shipping_address']['country_id'] = $this->getCountryId($paymentObject->payment->consumer->shippingAddress->country);
+               }
+
+               $this->tax->setShippingAddress($this->session->data['shipping_address']['country_id'], $this->session->data['shipping_address']['zone_id']);
+               $this->setPaymentAddress();
+               $this->updateCart();
        }
 
        protected function setPaymentAddress() {
            $paymentid = $this->session->data['dibseasy']['paymentid'];
            $paymentObject = $this->model_extension_payment_dibseasy->getPayment($paymentid);
 
-           if(isset($paymentObject->payment->consumer->privatePerson->firstName)) {
-             $this->session->data['payment_address']['firstname'] = $paymentObject->payment->consumer->privatePerson->firstName; 
+           if(isset($paymentObject->payment->consumer->company->name)) {
+
+               if(isset($paymentObject->payment->consumer->company->contactDetails->firstName)) {
+                 $this->session->data['payment_address']['firstname'] = $paymentObject->payment->consumer->company->contactDetails->firstName; 
+               }
+               if(isset($paymentObject->payment->consumer->company->contactDetails->lastName)) {
+                 $this->session->data['payment_address']['lastname'] = $paymentObject->payment->consumer->company->contactDetails->lastName;
+               }
+               $this->session->data['payment_address']['company'] = $paymentObject->payment->consumer->company->name;
+
+               if(isset($paymentObject->payment->consumer->company->contactDetails->email)) {
+                 $this->session->data['payment_address']['email'] = $paymentObject->payment->consumer->company->contactDetails->email;
+               }
+
+               $this->session->data['payment_address']['telephone'] = $paymentObject->payment->consumer->company->contactDetails->phoneNumber->prefix;
+
+               if(isset($paymentObject->payment->consumer->company->contactDetails->phoneNumber->prefix) && 
+                       isset($paymentObject->payment->consumer->company->contactDetails->phoneNumber->number)) {
+                  $this->session->data['payment_address']['telephone'] = $paymentObject->payment->consumer->company->contactDetails->phoneNumber->prefix .
+                          $paymentObject->payment->consumer->company->contactDetails->phoneNumber->number;
+               }
+
+           } else {
+               if(isset($paymentObject->payment->consumer->privatePerson->firstName)) {
+                 $this->session->data['payment_address']['firstname'] = $paymentObject->payment->consumer->privatePerson->firstName; 
+               }
+               if(isset($paymentObject->payment->consumer->privatePerson->lastName)) {
+                 $this->session->data['payment_address']['lastname'] = $paymentObject->payment->consumer->privatePerson->lastName;
+               }
+
+               if(isset($paymentObject->payment->consumer->privatePerson->email)) {
+                 $this->session->data['payment_address']['email'] = $paymentObject->payment->consumer->privatePerson->email;
+               }
+
+               if(isset($paymentObject->payment->consumer->privatePerson->phoneNumber->prefix) && 
+                       isset($paymentObject->payment->consumer->privatePerson->phoneNumber->number)) {
+                  $this->session->data['payment_address']['telephone'] = $paymentObject->payment->consumer->privatePerson->phoneNumber->prefix .
+                          $paymentObject->payment->consumer->privatePerson->phoneNumber->number;
+               }
            }
-           if($paymentObject->payment->consumer->privatePerson->lastName) {
-             $this->session->data['payment_address']['lastname'] = $paymentObject->payment->consumer->privatePerson->lastName;
-           }
-           $this->session->data['payment_address']['company'] = 'Ciklum';
 
            if($paymentObject->payment->consumer->shippingAddress->addressLine1) {
               $this->session->data['payment_address']['address_1'] = $paymentObject->payment->consumer->shippingAddress->addressLine1;

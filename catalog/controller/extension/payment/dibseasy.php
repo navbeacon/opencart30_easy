@@ -36,8 +36,8 @@ class ControllerExtensionPaymentDibseasy extends Controller {
 
                              if(isset($response->payment->paymentDetails->cardDetails->maskedPan)) {
                                  $maskedCardNumber = $response->payment->paymentDetails->cardDetails->maskedPan;
-+                                $cardPostfix = substr($maskedCardNumber, -4);
-+                                $transactDetails .= "$cardNumberPostfix: <b>$cardPostfix</b>";
+                                $cardPostfix = substr($maskedCardNumber, -4);
+                                $transactDetails .= "$cardNumberPostfix: <b>$cardPostfix</b>";
                              }
                             $this->load->model('checkout/order');
                             $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], $this->config->get('dibseasy_order_status_id'), $transactDetails, true);

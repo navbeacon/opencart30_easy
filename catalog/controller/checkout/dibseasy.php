@@ -4,17 +4,9 @@ class ControllerCheckoutDibseasy extends Controller {
 
 
     public function index() {
-        	$this->load->language('checkout/checkout');
+                $this->load->language('checkout/checkout');
 	        $this->document->setTitle($this->language->get('heading_title'));
-                
-                if (file_exists(DIR_APPLICATION . 'view/theme/' . $this->config->get('config_template') . '/stylesheet/easy_checkout.css')) {
-			$stylesheet = 'catalog/view/theme/' . $this->config->get('config_template') . '/stylesheet/easy_checkout.css';
-		} else {
-			$stylesheet = 'catalog/view/theme/default/stylesheet/easy_checkout.css';
-		}
-		
-		$this->document->addStyle($stylesheet);
-                
+	        $this->document->addStyle('catalog/view/theme/default/stylesheet/easy_checkout.css');
  		$data['breadcrumbs'] = array();
         	$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('text_home'),
@@ -84,7 +76,6 @@ class ControllerCheckoutDibseasy extends Controller {
        $this->load->model('extension/payment/dibseasy');
        $action = $this->request->post['action'];
        $this->load->language('checkout/dibseasy');
-
         try {
             switch($action) {
                 case 'set-shipping-method':
@@ -101,7 +92,12 @@ class ControllerCheckoutDibseasy extends Controller {
             $data['shipping_methods'] = $this->model_extension_payment_dibseasy->getShippingMethods();
             $data['totals'] = $this->model_extension_payment_dibseasy->getTotals();
             $data['code'] = isset($this->session->data['shipping_method']['code']) ? $this->session->data['shipping_method']['code'] : null;
-            $data['checkout_url'] = $this->url->link('checkout/checkout', '', true);
+
+            $data['checkout_url'] = $this->config->get('dibseasy_otherpayment_button_url');  //$this->url->link('checkout/checkout', '', true);
+            if(empty($data['checkout_url'])) {
+                $data['checkout_url'] = $this->url->link('checkout/checkout', '', true);
+            }
+
             $data['button_checkout_label'] = $this->language->get('button_checkout_label');
             $data['order_summary_label'] = $this->language->get('order_summary_label');
             $data['shipping_methods_label'] = $this->language->get('shipping_methods_label');
@@ -114,5 +110,9 @@ class ControllerCheckoutDibseasy extends Controller {
             unset($this->session->data['dibseasy']['paymentid']);
         }
         echo json_encode($result);
+    }
+
+    public function test() {
+       var_dump($this->session->data['shipping_method']);
     }
 }

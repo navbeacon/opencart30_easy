@@ -13,12 +13,12 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                     $this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true));
 
 		}
+                
 		$data['heading_title'] = $this->language->get('heading_title');
 		$data['text_edit'] = $this->language->get('text_edit');
 		$data['text_enabled'] = $this->language->get('text_enabled');
 		$data['text_disabled'] = $this->language->get('text_disabled');
 		$data['text_all_zones'] = $this->language->get('text_all_zones');
-        	$data['entry_dibseasy_merchant'] = $this->language->get('entry_dibseasy_merchant');
                	$data['entry_dibseasy_checkoutkey_test'] = $this->language->get('entry_dibseasy_checkoutkey');
                 $data['entry_dibseasy_checkoutkey_live'] = $this->language->get('entry_dibseasy_checkoutk_live');
                 $data['entry_order_status'] = $this->language->get('entry_order_status');
@@ -29,20 +29,17 @@ class ControllerExtensionPaymentDibseasy extends Controller {
 		$data['help_total'] = $this->language->get('help_total');
 		$data['button_save'] = $this->language->get('button_save');
 		$data['button_cancel'] = $this->language->get('button_cancel');
-                $data['entry_shipping_method'] = $this->language->get('entry_shipping_method');
-                $data['text_free_shipping'] = $this->language->get('text_free_shipping');
-                $data['text_flat_shipping'] = $this->language->get('text_flat_shipping');
                 $data['entry_debug'] = $this->language->get('entry_debug');
                 $data['entry_testmode'] = $this->language->get('entry_testmode');
                 $data['entry_dibseasy_livekey'] = $this->language->get('entry_dibseasy_livekey');
                 $data['entry_dibseasy_testkey'] = $this->language->get('entry_dibseasy_testkey');
-                $data['entry_shipping_method_description'] = $this->language->get('entry_shipping_method_description');
                 $data['entry_testmode_description'] =  $this->language->get('entry_testmode_description');
                 $data['entry_debug_description'] = $this->language->get('entry_debug_description');
                 $data['entry_language'] = $this->language->get('entry_language');
                 $data['entry_dibseasy_terms_and_conditions'] = $this->language->get('entry_dibseasy_terms_and_conditions');
                 $data['entry_allowed_customer_type'] = $this->language->get('entry_allowed_customer_type');
-
+                $data['entry_dibseasy_otherpayment_button_url'] = $this->language->get('entry_dibseasy_otherpayment_button_url');
+                $data['entry_dibseasy_otherpayment_button_url_comment'] = $this->language->get('entry_dibseasy_otherpayment_button_url_comment');
                 $data['text_b2c'] = $this->language->get('text_b2c');
                 $data['text_b2b'] = $this->language->get('text_b2b');
                 $data['text_b2c_b2b_b2c'] = $this->language->get('text_b2c_b2b_b2c');
@@ -75,13 +72,7 @@ class ControllerExtensionPaymentDibseasy extends Controller {
 
 		$data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true);
 
-		if (isset($this->request->post['dibseasy_merchant'])) {
-			$data['dibseasy_merchant'] = $this->request->post['dibseasy_merchant'];
-		} else {
-			$data['dibseasy_merchant'] = $this->config->get('dibseasy_merchant');
-		}
-
-                if (isset($this->request->post['dibseasy_checkoutkey_test'])) {
+		if (isset($this->request->post['dibseasy_checkoutkey_test'])) {
 			$data['dibseasy_checkoutkey_test'] = $this->request->post['dibseasy_checkoutkey_test'];
 		} else {
 			$data['dibseasy_checkoutkey_test'] = $this->config->get('dibseasy_checkoutkey_test');
@@ -133,7 +124,7 @@ class ControllerExtensionPaymentDibseasy extends Controller {
 
 		$data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
 
-		if (isset($this->request->post['dibseasy_status'])) {
+                if (isset($this->request->post['dibseasy_status'])) {
 			$data['dibseasy_status'] = $this->request->post['dibseasy_status'];
 		} else {
 			$data['dibseasy_status'] = $this->config->get('dibseasy_status');
@@ -169,17 +160,13 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                     $data['dibseasy_debug_mode'] = $this->config->get('dibseasy_debug_mode');
                 }
 
-		$data['error_merchant'] = '';
-                if(isset($this->error['error_merchant'])) {
-                    $data['error_merchant'] = $this->error['error_merchant']; 
+                if(isset($this->request->post['dibseasy_otherpayment_button_url'])) {
+                    $data['dibseasy_otherpayment_button_url'] = $this->request->post['dibseasy_otherpayment_button_url'];
+                } else {
+                    $data['dibseasy_otherpayment_button_url'] = $this->config->get('dibseasy_otherpayment_button_url');
                 }
 
-                $data['free_shipping_disabled'] = '';
-                if(isset($this->error['free_shipping_disabled'])) {
-                    $data['free_shipping_disabled'] = $this->error['free_shipping_disabled'];
-                }
-
-                $data['checkout_key_test'] = '';
+		$data['checkout_key_test'] = '';
                 if(isset($this->error['checkout_key_test'])) {
                     $data['checkout_key_test'] = $this->error['checkout_key_test']; 
                 }
@@ -236,13 +223,9 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                 if($this->config->get('dibseasy_allowed_customer_type') == 'b2c_b2b_b2c') {
                     $data['b2c_b2b_b2c_selected'] = 'selected="selected"';
                 }
-                
+
                 if($this->config->get('dibseasy_allowed_customer_type') == 'b2b_b2c_b2b') {
                     $data['b2b_b2c_b2b_selected'] = 'selected="selected"';
-                }
-
-                if(isset($this->error['error_merchant'])) {
-                   $data['error_merchant'] = $this->error['error_merchant'];
                 }
 
                 if(isset($this->error['easy_term_and_conditions'])) {
@@ -260,35 +243,15 @@ class ControllerExtensionPaymentDibseasy extends Controller {
            	if (!$this->user->hasPermission('modify', 'extension/payment/dibseasy')) {
 			$this->error['warning'] = $this->language->get('error_permission');
 		}
-                if (isset($this->request->post['dibseasy_merchant']) && strlen(trim($this->request->post['dibseasy_merchant'])) == 0) {
-                    $this->error['error_merchant'] = $this->language->get('error_merchant'); //"Merchant id is required";
-                }
+
                 if (isset($this->request->post['dibseasy_checkoutkey']) && strlen(trim($this->request->post['dibseasy_checkoutkey'])) == 0) {
                     $this->error['checkout_key'] = $this->language->get('checkout_key'); // "Merchant id is required";
                 }
 
-                if(isset($this->request->post['dibseasy_terms_and_conditions'])) {
-                    $pattern = '/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/';
-                    $subject = $this->request->post['dibseasy_terms_and_conditions'];
+                if(isset($this->request->post['dibseasy_terms_and_conditions']) && !$this->request->post['dibseasy_terms_and_conditions']) {
+                    $this->error['easy_term_and_conditions'] = $this->language->get('entry_term_and_conditions_error');
+                }
 
-                    if(!preg_match($pattern, $subject)) {
-                        $this->error['easy_term_and_conditions'] = 'Terms and conditions url empty or wrong format!';
-                    }
-                }
-                if(isset($this->request->post['dibseasy_shipping_method'])) {
-                    if($this->request->post['dibseasy_shipping_method'] == 'free') {
-                        $this->load->model('setting/setting'); 
-                        $settings = $this->model_setting_setting->getSetting('shipping_free');
-                        
-                        if(!$settings || isset($settings['shipping_free_status']) && $settings['shipping_free_status'] == 0) {
-                           $this->error['free_shipping_disabled'] = $this->language->get('free_shipping_disabled');
-                        } else {
-                          if(isset($settings['free_status']) && $settings['free_status'] != 1) {
-                             $this->error['free_shipping_disabled'] = $this->language->get('free_shipping_disabled');
-                          }
-                        }
-                    }
-                }
                 if(isset($this->request->post['dibseasy_livekey']) && strlen(trim($this->request->post['dibseasy_livekey'])) == 0) {
                     $this->error['dibseasy_livekey'] = $this->language->get('entry_dibseasy_livekey_error');
                 }
