@@ -145,7 +145,7 @@
           }).done(function(result) {
             var result = JSON.parse(result);
             if(result.exception == 1) {
-                window.location.href = 'index.php?route=checkout/cart';
+                window.location.href = '{{ checkout_url }}';
             }
             $('#dibs-easy-controls').html(result.outputHtml);
             ct.checkout.thawCheckout();

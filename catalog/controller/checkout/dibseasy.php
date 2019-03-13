@@ -2,7 +2,6 @@
 
 class ControllerCheckoutDibseasy extends Controller {
 
-
     public function index() {
                 $this->load->language('checkout/checkout');
 	        $this->document->setTitle($this->language->get('heading_title'));
@@ -69,7 +68,11 @@ class ControllerCheckoutDibseasy extends Controller {
 		$data['content_bottom'] = $this->load->controller('common/content_bottom');
 		$data['footer'] = $this->load->controller('common/footer');
 		$data['header'] = $this->load->controller('common/header');
-    		$this->response->setOutput($this->load->view('checkout/dibseasy', array_merge($data, $checkoutData)));
+                $data['checkout_url'] = $this->config->get('dibseasy_otherpayment_button_url');  //$this->url->link('checkout/checkout', '', true);
+                if(empty($data['checkout_url'])) {
+                    $data['checkout_url'] = $this->url->link('checkout/checkout', '', true);
+                }
+        	$this->response->setOutput($this->load->view('checkout/dibseasy', array_merge($data, $checkoutData)));
 	}
 
     public function updateview() {
@@ -97,7 +100,6 @@ class ControllerCheckoutDibseasy extends Controller {
             if(empty($data['checkout_url'])) {
                 $data['checkout_url'] = $this->url->link('checkout/checkout', '', true);
             }
-
             $data['button_checkout_label'] = $this->language->get('button_checkout_label');
             $data['order_summary_label'] = $this->language->get('order_summary_label');
             $data['shipping_methods_label'] = $this->language->get('shipping_methods_label');
