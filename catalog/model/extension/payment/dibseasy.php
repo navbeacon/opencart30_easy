@@ -591,7 +591,7 @@ class ModelExtensionPaymentDibseasy extends Model {
                 $taxRate = $this->getTotalTaxRate($product['tax_class_id']);
                 $items[] = array(
                     'reference' => $product['product_id'],
-                    'name' => $product['name'],
+                    'name' => str_replace(array('\'', '&'), '', $product['name']),
                     'quantity' => $product['quantity'],
                     'unit' => 'pcs',
                     'unitPrice' => round($netPrice * $product['quantity'] * 100),
