@@ -113,8 +113,4 @@ class ControllerCheckoutDibseasy extends Controller {
         }
         echo json_encode($result);
     }
-
-    public function test() {
-       var_dump($this->session->data['shipping_method']);
-    }
 }

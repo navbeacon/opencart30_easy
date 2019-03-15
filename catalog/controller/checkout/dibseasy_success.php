@@ -1,31 +1,10 @@
 <?php
 class ControllerCheckoutDibseasySuccess extends Controller {
 	public function index() {
-                $this->load->language('checkout/success');
-                if (isset($this->session->data['order_id'])) {
+		$this->load->language('checkout/success');
+
+		if (isset($this->session->data['order_id'])) {
 			$this->cart->clear();
-
-			// Add to activity log
-			if ($this->config->get('config_customer_activity')) {
-				$this->load->model('account/activity');
-
-				if ($this->customer->isLogged()) {
-					$activity_data = array(
-						'customer_id' => $this->customer->getId(),
-						'name'        => $this->customer->getFirstName() . ' ' . $this->customer->getLastName(),
-						'order_id'    => $this->session->data['order_id']
-					);
-
-					$this->model_account_activity->addActivity('order_account', $activity_data);
-				} else {
-					$activity_data = array(
-						'name'     => $this->session->data['guest']['firstname'] . ' ' . $this->session->data['guest']['lastname'],
-						'order_id' => $this->session->data['order_id']
-					);
-
-					$this->model_account_activity->addActivity('order_guest', $activity_data);
-				}
-			}
 
 			unset($this->session->data['shipping_method']);
 			unset($this->session->data['shipping_methods']);
@@ -65,15 +44,11 @@ class ControllerCheckoutDibseasySuccess extends Controller {
 			'href' => $this->url->link('checkout/success')
 		);
 
-		$data['heading_title'] = $this->language->get('heading_title');
-
 		if ($this->customer->isLogged()) {
 			$data['text_message'] = sprintf($this->language->get('text_customer'), $this->url->link('account/account', '', true), $this->url->link('account/order', '', true), $this->url->link('account/download', '', true), $this->url->link('information/contact'));
 		} else {
 			$data['text_message'] = sprintf($this->language->get('text_guest'), $this->url->link('information/contact'));
 		}
-
-		$data['button_continue'] = $this->language->get('button_continue');
 
 		$data['continue'] = $this->url->link('common/home');
 
@@ -83,7 +58,8 @@ class ControllerCheckoutDibseasySuccess extends Controller {
 		$data['content_bottom'] = $this->load->controller('common/content_bottom');
 		$data['footer'] = $this->load->controller('common/footer');
 		$data['header'] = $this->load->controller('common/header');
-                $data['transactionid'] = isset($this->session->data['dibseasy_transaction'])?$this->session->data['dibseasy_transaction']:'';
+                $data['transactionid'] = isset($this->session->data['dibseasy_transaction']) ? $this->session->data['dibseasy_transaction']:'';
+                unset($this->session->data['dibseasy_transaction']);
         	$this->response->setOutput($this->load->view('common/dibseasy_success', $data));
 	}
 }

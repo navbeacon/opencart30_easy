@@ -14,9 +14,10 @@ class ControllerExtensionPaymentDibseasy extends Controller {
          }
 
 	public function confirm() {
-               if (isset($this->session->data['payment_method']['code']) && $this->session->data['payment_method']['code'] == 'dibseasy') {
+               if ($this->validateRequest()) {
                        $this->load->model('extension/payment/dibseasy');
-                       $response = $this->model_extension_payment_dibseasy->getTransactionInfo($_GET['paymentId']);
+                       $response = $this->model_extension_payment_dibseasy->getTransactionInfo(($this->request->get['paymentId']));
+                       $this->session->data['dibseasy_transaction'] = $this->request->get['paymentId'];
                        if(isset($response->payment->paymentDetails->paymentType) && $response->payment->paymentDetails->paymentType) {
                             $this->model_extension_payment_dibseasy->createOrder();
                             if($this->config->get('dibseasy_language') == 'sv-SE') {
@@ -58,4 +59,14 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                     $this->response->redirect($this->url->link('checkout/dibseasy', '', true));
                 }
 	}
+
+        private function validateRequest() {
+             if (isset($this->session->data['payment_method']['code'])
+                       && $this->session->data['payment_method']['code'] == 'dibseasy'
+                       && !empty($this->request->get['paymentId'])) {
+                 return true;
+             }
+             return false;
+        }
+
 }
