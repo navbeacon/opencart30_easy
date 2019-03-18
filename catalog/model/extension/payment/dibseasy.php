@@ -958,7 +958,7 @@ class ModelExtensionPaymentDibseasy extends Model {
                    if(isset($paymentObject->payment->consumer->privatePerson->lastName)) {
                      $this->session->data['shipping_address']['lastname'] = $paymentObject->payment->consumer->privatePerson->lastName;
                    }
-                   $this->session->data['shipping_address']['company'] = 'Ciklum';
+                    
                    if(isset($paymentObject->payment->consumer->privatePerson->email)) {
                      $this->session->data['shipping_address']['email'] = $paymentObject->payment->consumer->privatePerson->email;
                    }
