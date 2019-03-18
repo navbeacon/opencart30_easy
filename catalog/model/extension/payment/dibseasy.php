@@ -489,9 +489,6 @@ class ModelExtensionPaymentDibseasy extends Model {
             }
 
             $response = curl_exec($curl);
-            
-            error_log($response);
-            
             $info = curl_getinfo($curl);
 
             $this->logger->write($info);
