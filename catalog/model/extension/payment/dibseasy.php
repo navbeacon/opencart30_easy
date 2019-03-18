@@ -489,6 +489,9 @@ class ModelExtensionPaymentDibseasy extends Model {
             }
 
             $response = curl_exec($curl);
+            
+            error_log($response);
+            
             $info = curl_getinfo($curl);
 
             $this->logger->write($info);
@@ -784,7 +787,7 @@ class ModelExtensionPaymentDibseasy extends Model {
 
                                 $quote = $this->{'model_extension_shipping_' . $result['code']}->getQuote($this->session->data['shipping_address']);
 
-                                if ($quote['quote']) {
+                                if (!empty($quote['quote'])) {
                                         $method_data[$result['code']] = array(
                                                 'title'      => $quote['title'],
                                                 'quote'      => $quote['quote'],
