@@ -207,6 +207,8 @@ class ModelExtensionPaymentDibseasy extends Model {
 		$order_data['payment_lastname'] = $this->session->data['payment_address']['lastname'];
                 if(!empty($this->session->data['payment_address']['company'])) {
                     $order_data['payment_company'] = $this->session->data['payment_address']['company'];
+                } else {
+                    $order_data['payment_company'] = '';
                 }
                 $order_data['payment_address_1'] = $this->session->data['payment_address']['address_1'];
 		$order_data['payment_address_2'] = $this->session->data['payment_address']['address_2'];
@@ -236,6 +238,8 @@ class ModelExtensionPaymentDibseasy extends Model {
 			$order_data['shipping_lastname'] = $this->session->data['shipping_address']['lastname'];
                         if(!empty($this->session->data['shipping_address']['company'])) {
                             $order_data['shipping_company'] = $this->session->data['shipping_address']['company'];
+                        }else {
+                            $order_data['shipping_company'] = '';
                         }
 			$order_data['shipping_address_1'] = $this->session->data['shipping_address']['address_1'];
 			$order_data['shipping_address_2'] = $this->session->data['shipping_address']['address_2'];
@@ -1009,15 +1013,12 @@ class ModelExtensionPaymentDibseasy extends Model {
                if(isset($paymentObject->payment->consumer->company->contactDetails->email)) {
                  $this->session->data['payment_address']['email'] = $paymentObject->payment->consumer->company->contactDetails->email;
                }
-
                $this->session->data['payment_address']['telephone'] = $paymentObject->payment->consumer->company->contactDetails->phoneNumber->prefix;
-
                if(isset($paymentObject->payment->consumer->company->contactDetails->phoneNumber->prefix) && 
                        isset($paymentObject->payment->consumer->company->contactDetails->phoneNumber->number)) {
                   $this->session->data['payment_address']['telephone'] = $paymentObject->payment->consumer->company->contactDetails->phoneNumber->prefix .
                           $paymentObject->payment->consumer->company->contactDetails->phoneNumber->number;
                }
-
            } else {
                if(isset($paymentObject->payment->consumer->privatePerson->firstName)) {
                  $this->session->data['payment_address']['firstname'] = $paymentObject->payment->consumer->privatePerson->firstName; 
@@ -1025,11 +1026,9 @@ class ModelExtensionPaymentDibseasy extends Model {
                if(isset($paymentObject->payment->consumer->privatePerson->lastName)) {
                  $this->session->data['payment_address']['lastname'] = $paymentObject->payment->consumer->privatePerson->lastName;
                }
-
                if(isset($paymentObject->payment->consumer->privatePerson->email)) {
                  $this->session->data['payment_address']['email'] = $paymentObject->payment->consumer->privatePerson->email;
                }
-
                if(isset($paymentObject->payment->consumer->privatePerson->phoneNumber->prefix) && 
                        isset($paymentObject->payment->consumer->privatePerson->phoneNumber->number)) {
                   $this->session->data['payment_address']['telephone'] = $paymentObject->payment->consumer->privatePerson->phoneNumber->prefix .
