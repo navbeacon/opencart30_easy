@@ -95,8 +95,7 @@ class ControllerCheckoutDibseasy extends Controller {
             $data['shipping_methods'] = $this->model_extension_payment_dibseasy->getShippingMethods();
             $data['totals'] = $this->model_extension_payment_dibseasy->getTotals();
             $data['code'] = isset($this->session->data['shipping_method']['code']) ? $this->session->data['shipping_method']['code'] : null;
-
-            $data['checkout_url'] = $this->config->get('dibseasy_otherpayment_button_url');  //$this->url->link('checkout/checkout', '', true);
+            $data['checkout_url'] = $this->config->get('dibseasy_otherpayment_button_url');
             if(empty($data['checkout_url'])) {
                 $data['checkout_url'] = $this->url->link('checkout/checkout', '', true);
             }
@@ -104,6 +103,7 @@ class ControllerCheckoutDibseasy extends Controller {
             $data['order_summary_label'] = $this->language->get('order_summary_label');
             $data['shipping_methods_label'] = $this->language->get('shipping_methods_label');
             $data['shipping_total_label'] = $this->language->get('shipping_total_label');
+            $data['tax_total_label'] = 'Moms';
             $data['currency_code'] = $this->session->data['currency'];
             $result = array('outputHtml' => $this->load->view('checkout/dibseasy_totals', $data));
         } catch(Exception $e) {

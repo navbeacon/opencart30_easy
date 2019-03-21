@@ -201,13 +201,14 @@ class ModelExtensionPaymentDibseasy extends Model {
 			$order_data['telephone'] = $this->session->data['guest']['telephone'];
 			$order_data['custom_field'] = $this->session->data['guest']['custom_field'];
                         */
-                    
-		}
 
+		}
 		$order_data['payment_firstname'] = $this->session->data['payment_address']['firstname'];
 		$order_data['payment_lastname'] = $this->session->data['payment_address']['lastname'];
-		$order_data['payment_company'] = $this->session->data['payment_address']['company'];
-		$order_data['payment_address_1'] = $this->session->data['payment_address']['address_1'];
+                if(!empty($this->session->data['payment_address']['company'])) {
+                    $order_data['payment_company'] = $this->session->data['payment_address']['company'];
+                }
+                $order_data['payment_address_1'] = $this->session->data['payment_address']['address_1'];
 		$order_data['payment_address_2'] = $this->session->data['payment_address']['address_2'];
 		$order_data['payment_city'] = $this->session->data['payment_address']['city'];
 		$order_data['payment_postcode'] = $this->session->data['payment_address']['postcode'];
@@ -215,7 +216,7 @@ class ModelExtensionPaymentDibseasy extends Model {
 		$order_data['payment_zone_id'] = $this->session->data['payment_address']['zone_id'];
 		$order_data['payment_country'] = $this->session->data['payment_address']['country'];
 		$order_data['payment_country_id'] = $this->session->data['payment_address']['country_id'];
-		$order_data['payment_address_format'] = $this->session->data['payment_address']['address_format'];
+		$order_data['payment_address_format'] = '';
 		$order_data['payment_custom_field'] = (isset($this->session->data['payment_address']['custom_field']) ? $this->session->data['payment_address']['custom_field'] : array());
 
 		if (isset($this->session->data['payment_method']['title'])) {
@@ -233,7 +234,9 @@ class ModelExtensionPaymentDibseasy extends Model {
 		if ($this->cart->hasShipping()) {
 			$order_data['shipping_firstname'] = $this->session->data['shipping_address']['firstname'];
 			$order_data['shipping_lastname'] = $this->session->data['shipping_address']['lastname'];
-			$order_data['shipping_company'] = $this->session->data['shipping_address']['company'];
+                        if(!empty($this->session->data['shipping_address']['company'])) {
+                            $order_data['shipping_company'] = $this->session->data['shipping_address']['company'];
+                        }
 			$order_data['shipping_address_1'] = $this->session->data['shipping_address']['address_1'];
 			$order_data['shipping_address_2'] = $this->session->data['shipping_address']['address_2'];
 			$order_data['shipping_city'] = $this->session->data['shipping_address']['city'];
@@ -242,7 +245,7 @@ class ModelExtensionPaymentDibseasy extends Model {
 			$order_data['shipping_zone_id'] = $this->session->data['shipping_address']['zone_id'];
 			$order_data['shipping_country'] = $this->session->data['shipping_address']['country'];
 			$order_data['shipping_country_id'] = $this->session->data['shipping_address']['country_id'];
-			$order_data['shipping_address_format'] = $this->session->data['shipping_address']['address_format'];
+			$order_data['shipping_address_format'] = '';
 			$order_data['shipping_custom_field'] = (isset($this->session->data['shipping_address']['custom_field']) ? $this->session->data['shipping_address']['custom_field'] : array());
 
 			if (isset($this->session->data['shipping_method']['title'])) {
@@ -481,16 +484,13 @@ class ModelExtensionPaymentDibseasy extends Model {
                 curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($postData));
 
             }
-
             if($this->config->get('dibseasy_debug_mode')) {
                    $this->logger->write('Curl request:');
                    $this->logger->write($data);
             } else {
             }
-
             $response = curl_exec($curl);
             $info = curl_getinfo($curl);
-
             $this->logger->write($info);
             if ($info['http_code'] == 401 || $info['http_code'] == 404 || $info['http_code'] == 403) {
                 error_log('Authorization failed, please check your secret key and mode test/live');
@@ -564,7 +564,8 @@ class ModelExtensionPaymentDibseasy extends Model {
                     'reference' => uniqid('opc_')),
                  'checkout' => array(
                         'url' => $this->url->link('extension/payment/dibseasy/confirm', '', true),
-                        'termsUrl' => $this->config->get('dibseasy_terms_and_conditions')));
+                        'termsUrl' => $this->config->get('dibseasy_terms_and_conditions')),
+                );
             if($consumerType) {
                 $checkout = $data['checkout'];
                 $checkout['consumerType'] = $consumerType;
@@ -1005,7 +1006,6 @@ class ModelExtensionPaymentDibseasy extends Model {
                  $this->session->data['payment_address']['lastname'] = $paymentObject->payment->consumer->company->contactDetails->lastName;
                }
                $this->session->data['payment_address']['company'] = $paymentObject->payment->consumer->company->name;
-
                if(isset($paymentObject->payment->consumer->company->contactDetails->email)) {
                  $this->session->data['payment_address']['email'] = $paymentObject->payment->consumer->company->contactDetails->email;
                }
