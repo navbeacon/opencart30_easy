@@ -51,3 +51,4 @@ $_['error_merchant']  = 'Merchant is required';
 $_['checkout_key'] = 'Checkout key is required';
 $_['entry_dibseasy_livekey_error'] = 'Please fill live secret key';
 $_['entry_dibseasy_testkey_error'] = 'Please fill test secret key';
+$_['entry_term_and_conditions_error'] = 'Please add terms and conditions';

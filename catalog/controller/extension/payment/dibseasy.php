@@ -20,7 +20,7 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                        $this->session->data['dibseasy_transaction'] = $this->request->get['paymentId'];
                        if(isset($response->payment->paymentDetails->paymentType) && $response->payment->paymentDetails->paymentType) {
                             $this->model_extension_payment_dibseasy->createOrder();
-                            if($this->config->get('dibseasy_language') == 'sv-SE') {
+                            if($this->config->get('payment_dibseasy_language') == 'sv-SE') {
                                 $paymentType = 'Betalnings typ';
                                 $paymentMethod = 'Betalningsmetod';
                                 $transactionId = 'Betalnings ID';
@@ -41,10 +41,8 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                                 $transactDetails .= "$cardNumberPostfix: <b>$cardPostfix</b>";
                              }
                             $this->load->model('checkout/order');
-                            $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], $this->config->get('dibseasy_order_status_id'), $transactDetails, true);
-
+                            $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], $this->config->get('payment_dibseasy_order_status_id'), $transactDetails, true);
                             unset($this->session->data['dibseasy']['paymentid']);
-
                             $this->response->redirect($this->url->link('checkout/dibseasy_success', '', true));
                         } else {
                             $this->logger->write('-===============Error during finishiong order==============-----');
