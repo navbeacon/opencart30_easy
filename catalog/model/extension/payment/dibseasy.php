@@ -488,6 +488,7 @@ class ModelExtensionPaymentDibseasy extends Model {
                 curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($postData));
 
             }
+
             if($this->config->get('dibseasy_debug_mode')) {
                    $this->logger->write('Curl request:');
                    $this->logger->write($data);
@@ -651,7 +652,8 @@ class ModelExtensionPaymentDibseasy extends Model {
                     'grossTotalAmount' => $delta,
                     'netTotalAmount' => $delta);
               } else {
-                $total = round($this->getGrandTotal()) * 100;
+
+                $total = round($this->getGrandTotal(), (int)$this->currency->getDecimalPlace($this->session->data['currency'])) * 100;
 
                 if($total !=  $totalPriceCalculated) {
                     $delta = $total - $totalPriceCalculated;
@@ -718,9 +720,15 @@ class ModelExtensionPaymentDibseasy extends Model {
                             $this->load->model('extension/total/' . $result['code']);
                             $this->{'model_extension_total_' . $result['code']}->getTotal($total_data);
                     }
-              }
-
-              return $total_data;
+            }
+            $totals_rounded;
+            foreach($total_data['totals'] as $d) {
+                $value = round($d['value'], (int)$this->currency->getDecimalPlace($this->session->data['currency']));
+                $d['value'] = $value;
+                $totals_rounded[] = $d;
+            }
+            $total_data['totals'] = $totals_rounded;
+            return $total_data;
         }
 
        /**
@@ -920,13 +928,6 @@ class ModelExtensionPaymentDibseasy extends Model {
            );
            $paymentId = $this->session->data['dibseasy']['paymentid'];
            $this->makeCurlRequest($this->getApiUrlPrefix() . $paymentId . '/orderitems', $requestData, 'PUT');
-       }
-
-       /**
-        * Change shipping, billing address in quote if customer change it in Easy Window 
-        */
-       public function saveShippingAddress() {
-           
        }
 
        /**
