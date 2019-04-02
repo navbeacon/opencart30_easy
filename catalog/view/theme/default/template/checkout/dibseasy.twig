@@ -106,7 +106,6 @@
                     window.location = 'index.php?route=extension/payment/dibseasy/confirm' + '&paymentId=' + response.paymentId;;
                 });
 
-                /*
                 cartRemove = cart.remove;
                 cart.remove = function(key) {
             	$.ajax({
@@ -138,11 +137,11 @@
 			}
 		});
             };
-            */
       updateView({'action':'start'});
 
       function updateView (params) {
           ct = this;
+          ct.checkout.freezeCheckout();
           $.post('index.php?route=checkout/dibseasy/updateview', params ,function() {
           }).done(function(result) {
             var result = JSON.parse(result);
