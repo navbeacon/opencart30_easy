@@ -389,11 +389,6 @@ class ModelExtensionPaymentDibseasy extends Model {
  	}
  
         protected function validateCart() {
-            // Validate cart has products and has stock.
-            if ((!$this->cart->hasProducts() && empty($this->session->data['vouchers'])) || (!$this->cart->hasStock() && !$this->config->get('config_stock_checkout'))) {
-                    $json['redirect'] = $this->url->link('checkout/cart');
-                    return false;
-            }
             // Validate minimum quantity requirements.
             $products = $this->cart->getProducts();
             foreach ($products as $product) {
@@ -629,7 +624,8 @@ class ModelExtensionPaymentDibseasy extends Model {
               }
 
               if(isset($this->session->data['coupon'])) {
-                   $items[] = array(
+                  /* 
+                  $items[] = array(
                     'reference' => 'coupon',
                     'name' => 'Coupon',
                     'quantity' => 1,
@@ -639,6 +635,7 @@ class ModelExtensionPaymentDibseasy extends Model {
                     'taxAmount' => 0,
                     'grossTotalAmount' => $delta,
                     'netTotalAmount' => $delta);
+                   */
               } else {
 
                 $total = round($this->getGrandTotal(), (int)$this->currency->getDecimalPlace($this->session->data['currency'])) * 100;
@@ -807,7 +804,6 @@ class ModelExtensionPaymentDibseasy extends Model {
                 $result = $method_data;
 
                 if($method_data) {
-
                     $method = current($method_data);
                     $quote = $method['quote'];
                     $current = current($quote);
@@ -815,8 +811,9 @@ class ModelExtensionPaymentDibseasy extends Model {
 
                     // Set the first available shipping method
                     if(!isset($this->session->data['shipping_method'])) {
-                        $this->setShippingMethod($code);
+                      $this->setShippingMethod($code);
                     }
+
 
                     // If shipping from session is not in shippings list 
                     // set the first available shipping method 
@@ -856,7 +853,6 @@ class ModelExtensionPaymentDibseasy extends Model {
          */
         public function setShippingMethod($shippingCode = null) {
            if ($this->validateCart() && $this->cart->hasShipping()) {
-
                 $json['shipping_methods'] = array();
                 $this->load->model('setting/extension');
 

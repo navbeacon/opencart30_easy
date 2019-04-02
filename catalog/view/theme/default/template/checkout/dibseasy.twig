@@ -68,12 +68,14 @@
             </table>
           <div id="dibs-easy-controls"></div>
         <div id="dibs-easy-window">
-         {% if paymentId %}
-            <div id="dibs-complete-checkout"></div>
-          {% endif %}
-        <div id="dibseasy-switch-checkout-mobile"> 
-            <button id="dibseasy-switch-checkout-mobile" type="submit" class="btn btn-outline-primary">{{button_checkout_label}}</button>
-        </div>
+             {% if paymentId %}
+                <div id="dibs-complete-checkout"></div>
+              {% endif %}
+            <div id="dibseasy-switch-checkout-mobile">
+                <form method="POST" action="{{ checkout_url }}">
+                   <button id="dibseasy-switch-checkout-mobile" type="submit" class="btn btn-outline-primary">{{button_checkout_label}}</button>
+                </form>
+            </div>
         </div>
     </div>
     {{ column_right }}</div>

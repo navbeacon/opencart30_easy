@@ -3,7 +3,13 @@
 class ControllerCheckoutDibseasy extends Controller {
 
     public function index() {
+                // Validate cart has products and has stock.
+                if ((!$this->cart->hasProducts() && empty($this->session->data['vouchers']))
+                    || (!$this->cart->hasStock() && !$this->config->get('config_stock_checkout'))) {
+                    $this->response->redirect($this->url->link('checkout/cart', '', true));
+                }
                 $this->load->language('checkout/checkout');
+                $this->load->language('checkout/dibseasy');
 	        $this->document->setTitle($this->language->get('heading_title'));
 	        $this->document->addStyle('catalog/view/theme/default/stylesheet/easy_checkout.css');
  		$data['breadcrumbs'] = array();
@@ -68,7 +74,8 @@ class ControllerCheckoutDibseasy extends Controller {
 		$data['content_bottom'] = $this->load->controller('common/content_bottom');
 		$data['footer'] = $this->load->controller('common/footer');
 		$data['header'] = $this->load->controller('common/header');
-                $data['checkout_url'] = $this->config->get('dibseasy_otherpayment_button_url');  //$this->url->link('checkout/checkout', '', true);
+                $data['checkout_url'] = $this->config->get('dibseasy_otherpayment_button_url');
+                $data['button_checkout_label'] = $this->language->get('button_checkout_label');
                 if(empty($data['checkout_url'])) {
                     $data['checkout_url'] = $this->url->link('checkout/checkout', '', true);
                 }
