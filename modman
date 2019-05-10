@@ -11,6 +11,7 @@ catalog/view/theme/default/template/checkout/dibseasy_totals.twig catalog/view/t
 admin/view/image/payment/dibs.png admin/view/image/payment/dibs.png
 system/dibseasy.ocmod.xml system/dibseasy.ocmod.xml
 catalog/view/theme/default/template/common/dibseasy_success.twig catalog/view/theme/default/template/common/dibseasy_success.twig
+catalog/view/theme/default/template/extension/payment/dibseasy.twig catalog/view/theme/default/template/extension/payment/dibseasy.twig
 catalog/controller/checkout/dibseasy_success.php catalog/controller/checkout/dibseasy_success.php 
 catalog/view/theme/default/template/mail/dibseasy_order.twig catalog/view/theme/default/template/mail/dibseasy_order.twig
 catalog/view/theme/default/stylesheet/easy_checkout.css catalog/view/theme/default/stylesheet/easy_checkout.css

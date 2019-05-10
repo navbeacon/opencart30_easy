@@ -14,7 +14,6 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                     $this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true));
                     
 		}
-                
 		$data['heading_title'] = $this->language->get('heading_title');
 		$data['text_edit'] = $this->language->get('text_edit');
 		$data['text_enabled'] = $this->language->get('text_enabled');
@@ -159,6 +158,12 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                     $data['payment_dibseasy_otherpayment_button_url'] = $this->request->post['payment_dibseasy_otherpayment_button_url'];
                 } else {
                     $data['payment_dibseasy_otherpayment_button_url'] = $this->config->get('payment_dibseasy_otherpayment_button_url');
+                }
+
+                if(isset($this->request->post['payment_dibseasy_checkout_type'])) {
+                    $data['payment_dibseasy_checkout_type'] = $this->request->post['payment_dibseasy_checkout_type'];
+                } else {
+                    $data['payment_dibseasy_checkout_type'] = $this->config->get('payment_dibseasy_checkout_type');
                 }
 
 		$data['checkout_key_test'] = '';

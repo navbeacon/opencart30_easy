@@ -1,6 +1,6 @@
 <?php
 // Heading
-$_['heading_title']		 = 'Dibs Checkout';
+$_['heading_title'] = 'Dibs Checkout';
 
 // Text
 $_['text_extension'] = 'Extensions';
@@ -9,13 +9,14 @@ $_['text_edit'] = 'Edit Dibs Easy';
 $_['text_dibseasy'] = '<a href= "http://www.dibs.se/" target="_blank"><img alt="Dibs" ешеду="Dibs" src="view/image/payment/dibs.png" style="width: 113px; height: 61px;"></a>';
 
 // Entry
-$_['entry_total']		 = 'Total';
+$_['entry_total']        = 'Total';
 $_['entry_order_status'] = 'Order Status';
 $_['entry_geo_zone']	 = 'Geo Zone';
 $_['entry_status']	 = 'Status';
 $_['entry_sort_order']	 = 'Sort Order';
 $_['entry_debug'] = 'Debug mode';
 $_['entry_testmode'] = 'Test';
+$_['entry_checkout_type'] = 'Checkout type';
 $_['entry_dibseasy_livekey'] = 'Secret key';
 $_['entry_dibseasy_testkey'] = 'Secret key';
 $_['entry_shipping_method_description'] = 'It is possible to use only 2 types of shipping methods';
@@ -36,7 +37,8 @@ $_['text_b2c'] = 'B2C only';
 $_['text_b2b'] = 'B2B only';
 $_['text_b2c_b2b_b2c'] = 'B2C & B2B (defaults to B2C)';
 $_['text_b2b_b2c_b2b'] = 'B2B & B2C (defaults to B2B)';
-
+$_['text_checkout_type_hosted'] = 'Payment Window';
+$_['text_checkout_type_embedded'] = 'Embedded';
 // Help
 $_['help_total'] = 'The checkout total the order must reach before this payment method becomes active.';
 

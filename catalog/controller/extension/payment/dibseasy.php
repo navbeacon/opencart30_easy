@@ -14,11 +14,11 @@ class ControllerExtensionPaymentDibseasy extends Controller {
          }
 
 	public function confirm() {
-               if ($this->validateRequest()) {
+             if ($this->validateRequest()) {
                        $this->load->model('extension/payment/dibseasy');
-                       $response = $this->model_extension_payment_dibseasy->getTransactionInfo(($this->request->get['paymentId']));
-                       $this->session->data['dibseasy_transaction'] = $this->request->get['paymentId'];
-                       if(isset($response->payment->paymentDetails->paymentType) && $response->payment->paymentDetails->paymentType) {
+                       $response = $this->model_extension_payment_dibseasy->getTransactionInfo(($this->extractPaymentId()));
+                       $this->session->data['dibseasy_transaction'] = $this->extractPaymentId();
+                         if(isset($response->payment->paymentDetails->paymentType) && $response->payment->paymentDetails->paymentType) {
                             $this->model_extension_payment_dibseasy->createOrder();
                             if($this->config->get('payment_dibseasy_language') == 'sv-SE') {
                                 $paymentType = 'Betalnings typ';
@@ -56,15 +56,40 @@ class ControllerExtensionPaymentDibseasy extends Controller {
         	} else {
                     $this->response->redirect($this->url->link('checkout/dibseasy', '', true));
                 }
-	}
+   	}
+
+        public function redirect() {
+             $this->load->model('extension/payment/dibseasy');
+             $paymentid = $this->model_extension_payment_dibseasy->getPaymentId();
+             if($paymentid) {
+                $transaction = $this->model_extension_payment_dibseasy->getTransactionInfo($paymentid);
+         	$json['redirect'] = $transaction->payment->checkout->url;
+             } else {
+                $this->session->data['error'] = 'Error during payment initialization, try anoter payment method';
+                $json['error'] = 1;
+             }
+             $this->response->addHeader('Content-Type: application/json');
+          $this->response->setOutput(json_encode($json));
+        }
 
         private function validateRequest() {
              if (isset($this->session->data['payment_method']['code'])
                        && $this->session->data['payment_method']['code'] == 'dibseasy'
-                       && !empty($this->request->get['paymentId'])) {
+                       && !empty($this->extractPaymentId())) {
                  return true;
              }
              return false;
         }
 
+        private function extractPaymentId()
+        {
+            $result = null;
+            if(isset($this->request->get['paymentid'])) {
+                $result = $this->request->get['paymentid'];
+            }
+            if(isset($this->request->get['paymentId'])) {
+                $result = $this->request->get['paymentId'];
+            }
+            return $result;
+        }
 }

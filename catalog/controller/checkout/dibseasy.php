@@ -8,6 +8,11 @@ class ControllerCheckoutDibseasy extends Controller {
                     || (!$this->cart->hasStock() && !$this->config->get('config_stock_checkout'))) {
                     $this->response->redirect($this->url->link('checkout/cart', '', true));
                 }
+
+                if('hosted' == $this->config->get('payment_dibseasy_checkout_type')) {
+                    $this->response->redirect($this->url->link('checkout/cart', '', true));
+                }
+
                 $this->load->language('checkout/checkout');
                 $this->load->language('checkout/dibseasy');
 	        $this->document->setTitle($this->language->get('heading_title'));
