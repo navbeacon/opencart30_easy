@@ -17,6 +17,6 @@ This module supports Opencart version 3.0.x
 
 ## Design
 * Embedded
-![alt text](http://url/to/img.png)
+![alt text](https://github.com/DIBS-Payment-Services/opencart30_dibseasy/blob/master/catalog/view/theme/default/image/embedded_design.png)
 * Hosted
-![alt text](http://url/to/img.png)
+![alt text](https://github.com/DIBS-Payment-Services/opencart30_dibseasy/blob/master/catalog/view/theme/default/image/hosted_design.png)
