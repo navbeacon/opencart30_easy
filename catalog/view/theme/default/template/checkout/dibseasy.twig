@@ -91,7 +91,6 @@
 	   };
 	  var checkout = new Dibs.Checkout(checkoutOptions);
               checkout.on('payment-completed', function(response) {
-                       var respObject = JSON.stringify(response);
                        var paymentId = response.paymentId;
                        var checkoutUrl = "{{ checkoutconfirmurl}} &paymentId=" + paymentId;
                        window.location = checkoutUrl;

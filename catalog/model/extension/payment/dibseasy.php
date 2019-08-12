@@ -94,7 +94,7 @@ class ModelExtensionPaymentDibseasy extends Model {
             } else {
                 $data['checkoutkey'] =  trim($this->config->get('payment_dibseasy_checkoutkey_test'));
             }
-            $data['language'] = $this->config->get('dibseasy_language');
+            $data['language'] = $this->config->get('payment_dibseasy_language');
 
             if($this->config->get('payment_dibseasy_testmode') == 0) {
                  $data['checkout_script'] = self::CHECKOUT_SCRIPT_LIVE;
