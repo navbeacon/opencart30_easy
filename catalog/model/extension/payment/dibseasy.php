@@ -24,7 +24,7 @@ class ModelExtensionPaymentDibseasy extends Model {
 				'code'       => self::METHOD_CODE,
 				'title'      => $this->language->get('text_title'),
 				'terms'      => '',
-				'sort_order' => $this->config->get('payment_cod_sort_order'));
+				'sort_order' => (int) $this->config->get('payment_dibseasy_sort_order'));
             }
             if('embedded' == $this->config->get('payment_dibseasy_checkout_type')) {
                 $method_data = array();

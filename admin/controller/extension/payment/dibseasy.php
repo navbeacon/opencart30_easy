@@ -37,6 +37,7 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                 $data['entry_debug_description'] = $this->language->get('entry_debug_description');
                 $data['entry_language'] = $this->language->get('entry_language');
                 $data['entry_dibseasy_terms_and_conditions'] = $this->language->get('entry_dibseasy_terms_and_conditions');
+                $data['entry_dibseasy_sort_order'] = $this->language->get('entry_dibseasy_sort_order');
                 $data['entry_allowed_customer_type'] = $this->language->get('entry_allowed_customer_type');
                 $data['entry_dibseasy_otherpayment_button_url'] = $this->language->get('entry_dibseasy_otherpayment_button_url');
                 $data['entry_dibseasy_otherpayment_button_url_comment'] = $this->language->get('entry_dibseasy_otherpayment_button_url_comment');
@@ -166,7 +167,13 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                     $data['payment_dibseasy_checkout_type'] = $this->config->get('payment_dibseasy_checkout_type');
                 }
 
-		$data['checkout_key_test'] = '';
+                if(isset($this->request->post['payment_dibseasy_sort_order'])) {
+                    $data['payment_dibseasy_sort_order'] = $this->request->post['payment_dibseasy_sort_order'];
+                } else {
+                    $data['payment_dibseasy_sort_order'] = $this->config->get('payment_dibseasy_sort_order');
+                }
+
+                $data['checkout_key_test'] = '';
                 if(isset($this->error['checkout_key_test'])) {
                     $data['checkout_key_test'] = $this->error['checkout_key_test']; 
                 }
