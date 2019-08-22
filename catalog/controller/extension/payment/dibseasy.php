@@ -54,12 +54,14 @@ class ControllerExtensionPaymentDibseasy extends Controller {
 
         public function redirect() {
              $this->load->model('extension/payment/dibseasy');
+             $this->load->language('checkout/dibseasy');
              $paymentid = $this->model_extension_payment_dibseasy->getPaymentId();
              if(!is_null($paymentid)) {
                 $transaction = $this->model_extension_payment_dibseasy->getTransactionInfo($paymentid);
          	$json['redirect'] = $transaction->payment->checkout->url;
+                
              } else {
-                $this->session->data['error'] = 'Error during payment initialization, try anoter payment method';
+                $this->session->data['error'] = $this->language->get('dibseasy_checkout_redirect_error');
                 $json['error'] = 1;
              }
              $this->response->addHeader('Content-Type: application/json');

@@ -385,6 +385,7 @@ class ModelExtensionPaymentDibseasy extends Model {
             }
             $response = $this->makeCurlRequest($url, $this->createRequestObject());
             if(!empty($response->paymentId)) {
+                $this->session->data['dibseasy']['paymentid'] = $response->paymentId;
                 return $response->paymentId;
             } else {
                 $this->logger->write($response);
@@ -407,9 +408,7 @@ class ModelExtensionPaymentDibseasy extends Model {
          * @return string
          */
         protected function makeCurlRequest($url, $data = array(), $method = 'POST') {
-            $error_codes = array(401, 400, 404, 403);
-            $curl = curl_init();
-            $header = array();
+            $ch = curl_init();
             $headers[] = 'Content-Type: text/json';
             $headers[] = 'Accept: test/json';
             $headers[] = 'commercePlatformTag: OC30';
@@ -419,38 +418,53 @@ class ModelExtensionPaymentDibseasy extends Model {
                $headers[] = 'Authorization: ' . str_replace('-', '', trim($this->config->get('payment_dibseasy_livekey')));
             }
             $postData = $data;
-            curl_setopt($curl, CURLOPT_URL, $url);
-            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $method);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             if($postData) {
-                curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($postData));
+                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
             }
-            if($this->config->get('payment_dibseasy_debug_mode')) {
-                   $this->logger->write('Curl request:');
-                   $this->logger->write($data);
-            } else {
+            $response = curl_exec($ch);
+            $info = curl_getinfo($ch);
+            switch($info['http_code']) {
+                
+                case 401:
+                  $message = 'Dibs Easy authorization filed. Check you keys';
+                break;
+                
+                case 400:
+                   $message = 'Dibs Easy. Bad request: ' . $response;
+                break;
+            
+                case 404:
+                    $message = 'Payment or charge not found';
+                break;
+            
+                case 500:
+                    $message = 'Unexpected error';
+                break;
+                
             }
-            $response = curl_exec($curl);
-            $info = curl_getinfo($curl);
-            $this->logger->write($info);
-            if (in_array($info['http_code'], $error_codes)) {
-                error_log('Authorization failed, please check your secret key and mode test/live');
-                $this->logger->write("Authorization failed, please check your secret key and mode test/live");
-            } else {
-                if( $response ) {
-                   $responseDecoded = json_decode($response);
-                   if($this->config->get('payment_dibseasy_debug')) {
-                       $this->logger->write('Curl response:');
-                       $this->logger->write($response);
+            
+            if(!empty($message)) {
+               $this->log->write($message);
+            }
+            
+            if(curl_error($ch)) {
+               $this->log->write(curl_error($ch));
+            }
+           
+            if($info['http_code'] == 200 || $info['http_code'] == 201) {
+                  if( $response ) {
+                      $responseDecoded = json_decode($response);
+                      if($this->config->get('payment_dibseasy_debug')) {
+                         $this->logger->write('Curl response:');
+                         $this->logger->write($response);
                    }
                    return ($responseDecoded) ? $responseDecoded : null;
-                }
-            }
-            if(curl_error($curl)) {
-              $this->logger->write('Curl error:');
-              $this->logger->write(curl_error($curl));
-            }
+               }
+           }
         }
 
         protected function getTotalTaxRate($tax_class_id) {
