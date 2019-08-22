@@ -1,11 +1,11 @@
 <?php
 class ControllerExtensionPaymentDibseasy extends Controller {
 	public function index() {
-          	$data['button_confirm'] = $this->language->get('button_confirm');
-		$data['text_loading'] = $this->language->get('text_loading');
-		$data['continue'] = $this->url->link('checkout/success');
-   		return $this->load->view('extension/payment/dibseasy', $data);
+            $data['button_confirm'] = $this->language->get('button_confirm');
+            $data['text_loading'] = $this->language->get('text_loading');
+            return $this->load->view('extension/payment/dibseasy', $data);
 	}
+
         protected $logger;
 
         public function __construct($registry) {
@@ -18,7 +18,7 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                        $this->load->model('extension/payment/dibseasy');
                        $response = $this->model_extension_payment_dibseasy->getTransactionInfo(($this->extractPaymentId()));
                        $this->session->data['dibseasy_transaction'] = $this->extractPaymentId();
-                         if(isset($response->payment->paymentDetails->paymentType) && $response->payment->paymentDetails->paymentType) {
+                       if(!empty($response->payment->paymentDetails->paymentType)) {
                             $this->model_extension_payment_dibseasy->createOrder();
                             if($this->config->get('payment_dibseasy_language') == 'sv-SE') {
                                 $paymentType = 'Betalnings typ';
@@ -45,13 +45,7 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                             unset($this->session->data['dibseasy']['paymentid']);
                             $this->response->redirect($this->url->link('checkout/dibseasy_success', '', true));
                         } else {
-                            $this->logger->write('-===============Error during finishiong order==============-----');
-                            $this->logger->write('Transactionid: ' . $_GET['paymentId']);
-                            $this->logger->write('Order was not registered in Opencart');
-                            $this->logger->write('Orderid: ' . $this->session->data['order_id']);
-                            $this->logger->write('You can fing order details in DB table: `' . DB_PREFIX . 'order`');
-                            $this->logger->write('================================================================');
-                            $this->response->redirect($this->url->link('checkout/dibseasy', '', true));
+                            $this->response->redirect($this->url->link('checkout/checkout', '', true));
                         }
         	} else {
                     $this->response->redirect($this->url->link('checkout/dibseasy', '', true));
@@ -61,7 +55,7 @@ class ControllerExtensionPaymentDibseasy extends Controller {
         public function redirect() {
              $this->load->model('extension/payment/dibseasy');
              $paymentid = $this->model_extension_payment_dibseasy->getPaymentId();
-             if($paymentid) {
+             if(!is_null($paymentid)) {
                 $transaction = $this->model_extension_payment_dibseasy->getTransactionInfo($paymentid);
          	$json['redirect'] = $transaction->payment->checkout->url;
              } else {
@@ -69,7 +63,7 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                 $json['error'] = 1;
              }
              $this->response->addHeader('Content-Type: application/json');
-          $this->response->setOutput(json_encode($json));
+             $this->response->setOutput(json_encode($json));
         }
 
         private function validateRequest() {

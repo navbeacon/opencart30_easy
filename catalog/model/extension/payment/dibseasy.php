@@ -370,22 +370,12 @@ class ModelExtensionPaymentDibseasy extends Model {
 
         /**
          * 
-         * @return string|bool
+         * @return string
          *
          */
         public function getPaymentId() {
-
             if(!$this->cart->hasProducts()) {
                unset($this->session->data['dibseasy']['paymentid']);
-            }
-            $this->setPaymentMethod();
-            if(isset($this->session->data['dibseasy']['paymentid']) &&
-                    $this->session->data['dibseasy']['paymentid']) {
-              // Easy paymentid expires every 2 hours
-              $timeCreation = $this->session->data['dibseasy']['paymentid_time_creation'];
-              if(time() - $timeCreation < (3600 * 2)) {
-               return $this->session->data['dibseasy']['paymentid'];
-             }
             }
             $this->setPaymentMethod();
             if($this->config->get('payment_dibseasy_testmode') == 0) {
@@ -394,14 +384,11 @@ class ModelExtensionPaymentDibseasy extends Model {
                 $url = self::PAYMENT_API_TEST_URL;
             }
             $response = $this->makeCurlRequest($url, $this->createRequestObject());
-            if($response && isset($response->paymentId)) {
-                $this->session->data['dibseasy']['paymentid'] = $response->paymentId;
-                $this->session->data['dibseasy']['paymentid_time_creation'] = time();
+            if(!empty($response->paymentId)) {
                 return $response->paymentId;
             } else {
                 $this->logger->write($response);
             }
-            return false;
         }
 
         protected function setPaymentMethod() {
