@@ -58,8 +58,7 @@ class ControllerExtensionPaymentDibseasy extends Controller {
              $paymentid = $this->model_extension_payment_dibseasy->getPaymentId();
              if(!is_null($paymentid)) {
                 $transaction = $this->model_extension_payment_dibseasy->getTransactionInfo($paymentid);
-         	$json['redirect'] = $transaction->payment->checkout->url;
-                
+         	$json['redirect'] = $transaction->payment->checkout->url . '&language=' . $this->config->get('payment_dibseasy_language');
              } else {
                 $this->session->data['error'] = $this->language->get('dibseasy_checkout_redirect_error');
                 $json['error'] = 1;
