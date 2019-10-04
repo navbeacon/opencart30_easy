@@ -508,6 +508,7 @@ class ModelExtensionPaymentDibseasy extends Model {
                         $default = 'B2B';
                         break;
                 }
+                
               $consumerType = array('supportedTypes'=>$supportedTypes,'default'=>$default);
             }
             $data = array(
@@ -524,51 +525,65 @@ class ModelExtensionPaymentDibseasy extends Model {
                 $data['checkout']['url'] = $this->url->link('extension/payment/dibseasy/confirm', '', true);
             }
             if('hosted' == $this->config->get('payment_dibseasy_checkout_type')) {
-                $order_data = [];
-                $telephone = null;
-              	if ($this->customer->isLogged()) {
-			$this->load->model('account/customer');
-			$customer_info = $this->model_account_customer->getCustomer($this->customer->getId());
-			$order_data['customer_id'] = $this->customer->getId();
-			$order_data['customer_group_id'] = $customer_info['customer_group_id'];
-			$order_data['firstname'] = $customer_info['firstname'];
-			$order_data['lastname'] = $customer_info['lastname'];
-			$order_data['email'] = $customer_info['email'];
-			$order_data['telephone'] = $customer_info['telephone'];
-			$order_data['custom_field'] = json_decode($customer_info['custom_field'], true);
-                        $telephone = $order_data['telephone'];
-                        $email = $order_data['email'];
-                        
-		}elseif (isset($this->session->data['guest'])) {
-                        $order_data['customer_id'] = 0;
-                        $order_data['customer_group_id'] = $this->session->data['guest']['customer_group_id'];
-                        $order_data['firstname'] = $this->session->data['guest']['firstname'];
-                        $order_data['lastname'] = $this->session->data['guest']['lastname'];
-                        $order_data['email'] = $this->session->data['guest']['email'];
-                        $order_data['telephone'] = $this->session->data['guest']['telephone'];
-                        $order_data['custom_field'] = $this->session->data['guest']['custom_field'];
-                        $email = $order_data['email'];
-                        $telephone = $order_data['telephone'];
-                }
-              $data['checkout']['consumer'] = array(
-                            'email' => $email,
-                            "shippingAddress" => array(
-                                "addressLine1"=> $this->session->data['shipping_address']['address_1'],
-                                "addressLine2"=> $this->session->data['shipping_address']['address_2'],
-                                "postalCode"=> $this->session->data['shipping_address']['postcode'],
-                                "city"=> $this->session->data['shipping_address']['city'],
-                                "country"=> $this->session->data['shipping_address']['iso_code_3']
-                              ),
-                          'phoneNumber' => $this->extractPhone($telephone),
-                          'privatePerson' => array(
-                                'firstName' => $this->session->data['shipping_address']['firstname'],
-                                'lastName' => $this->session->data['shipping_address']['lastname'],
-                         )
-                 );
-                 $data['checkout']['merchantHandlesConsumerData'] = true;
+                
+                if('b2c' ==  $customerType) {
+                    
+                    $order_data = [];
+                    $telephone = null;
+                    if ($this->customer->isLogged()) {
+                            $this->load->model('account/customer');
+                            $customer_info = $this->model_account_customer->getCustomer($this->customer->getId());
+                            $order_data['customer_id'] = $this->customer->getId();
+                            $order_data['customer_group_id'] = $customer_info['customer_group_id'];
+                            $order_data['firstname'] = $customer_info['firstname'];
+                            $order_data['lastname'] = $customer_info['lastname'];
+                            $order_data['email'] = $customer_info['email'];
+                            $order_data['telephone'] = $customer_info['telephone'];
+                            $order_data['custom_field'] = json_decode($customer_info['custom_field'], true);
+                            $telephone = $order_data['telephone'];
+                            $email = $order_data['email'];
+
+                    }elseif (isset($this->session->data['guest'])) {
+                            $order_data['customer_id'] = 0;
+                            $order_data['customer_group_id'] = $this->session->data['guest']['customer_group_id'];
+                            $order_data['firstname'] = $this->session->data['guest']['firstname'];
+                            $order_data['lastname'] = $this->session->data['guest']['lastname'];
+                            $order_data['email'] = $this->session->data['guest']['email'];
+                            $order_data['telephone'] = $this->session->data['guest']['telephone'];
+                            $order_data['custom_field'] = $this->session->data['guest']['custom_field'];
+                            $email = $order_data['email'];
+                            $telephone = $order_data['telephone'];
+                    }
+                    
+                     $phonePrefix = substr($telephone, 0, 3);
+                     $number = substr($telephone, 3);
+                     $consumerData['phoneNumber'] = ['prefix' => $phonePrefix, 'number' => $number];
+                     
+                     $consumerData = array(
+                        'email' => $email,
+                        "shippingAddress" => array(
+                            "addressLine1"=> !empty($this->session->data['shipping_address']['address_1']) ? $this->session->data['shipping_address']['address_1']: null,
+                            "addressLine2"=> !empty($this->session->data['shipping_address']['address_2']) ? $this->session->data['shipping_address']['address_2']: null,
+                            "postalCode"=> !empty($this->session->data['shipping_address']['postcode']) ? $this->session->data['shipping_address']['postcode']: null,
+                            "city"=> !empty($this->session->data['shipping_address']['city']) ? $this->session->data['shipping_address']['city']: null,
+                            "country"=> !empty($this->session->data['shipping_address']['iso_code_3']) ? $this->session->data['shipping_address']['iso_code_3']: null
+                          ),
+                         'privatePerson' => array(
+                            'firstName' => !empty($this->session->data['shipping_address']['firstname']) ?$this->session->data['shipping_address']['firstname']: 'FirstName',
+                            'lastName' => !empty($this->session->data['shipping_address']['lastname']) ? $this->session->data['shipping_address']['lastname']: 'LastName',
+                       )
+                     );
+                     
+                     if( 'b2c' ==  $customerType && $this->validateAddress($consumerData) ) {
+                         $data['checkout']['consumer'] = $consumerData;
+                         $data['checkout']['merchantHandlesConsumerData'] = true;
+                     }
+                     
+               }
                  $data['checkout']['returnUrl'] = $this->url->link('extension/payment/dibseasy/confirm', '', true);
                  $data['checkout']['integrationType'] = 'HostedPaymentPage';
             }
+            
             if($consumerType) {
                 $checkout = $data['checkout'];
                 $checkout['consumerType'] = $consumerType;
@@ -1063,6 +1078,7 @@ class ModelExtensionPaymentDibseasy extends Model {
            $valid = true;
            $prefix = '';
            $countryCode = $this->session->data['shipping_address']['iso_code_3'];
+           
            switch($countryCode) {
                 case 'NO':
                     $prefix = '+47';
@@ -1076,6 +1092,8 @@ class ModelExtensionPaymentDibseasy extends Model {
                 default:
                     $prefix = '';
             }
+            
+            
             $phoneCleaned = str_replace(array('-','(', ')',' '),'', $phone);
             if(empty($prefix)) {
                 if(preg_match('/^\+[0-9]{8,15}/', $phoneCleaned) ) {
@@ -1099,8 +1117,15 @@ class ModelExtensionPaymentDibseasy extends Model {
            }
            else return false;
     }
+  
+    public function validateAddress($address) {
+      return (!empty($address['shippingAddress']['country'] 
+             && !empty($address['shippingAddress']['postalCode'])) &&
+             (!empty($address['shippingAddress']['addressLine1'] ||
+             !empty( $address['shippingAddress']['addressLine1'])))); 
+    }
 
-      public function debug($prefix = '', $data) {
+    public function debug($prefix = '', $data) {
            ob_start();
            echo $prefix . "\n";
            //echo "<pre>";
@@ -1108,6 +1133,5 @@ class ModelExtensionPaymentDibseasy extends Model {
            //echo "</pre>";
            $result = ob_get_clean();
            error_log($result);
-      }
-
+    }
 }
