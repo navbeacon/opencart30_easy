@@ -383,7 +383,15 @@ class ModelExtensionPaymentDibseasy extends Model {
             } else {
                 $url = self::PAYMENT_API_TEST_URL;
             }
-            $response = $this->makeCurlRequest($url, $this->createRequestObject());
+            $ro = $this->createRequestObject();
+            $response = $this->makeCurlRequest($url, $ro);
+            if(!empty($response->errors)) {
+                $resonseArray = (array) $response->errors;
+                if(!empty( $resonseArray['checkout.Consumer.ShippingAddress.PostalCode'] )) {
+                    unset($ro['checkout']['merchantHandlesConsumerData']);
+                    $response = $this->makeCurlRequest($url, $ro);
+                }
+            }
             if(!empty($response->paymentId)) {
                 $this->session->data['dibseasy']['paymentid'] = $response->paymentId;
                 return $response->paymentId;
@@ -455,7 +463,7 @@ class ModelExtensionPaymentDibseasy extends Model {
                $this->log->write(curl_error($ch));
             }
            
-            if($info['http_code'] == 200 || $info['http_code'] == 201) {
+            if($info['http_code'] == 200 || $info['http_code'] == 201 || $info['http_code'] == 400) {
                   if( $response ) {
                       $responseDecoded = json_decode($response);
                       if($this->config->get('payment_dibseasy_debug')) {
