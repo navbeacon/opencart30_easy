@@ -117,7 +117,7 @@
     }
 
     .dibs-easy-totals-lable {
-        width: 150px;
+        width: 15%;
     }
     
     #dibs-easy-totals-lable-sub_total {
@@ -188,10 +188,11 @@
         margin-bottom: 30px;
     }
   
-   #totals-table #tr-shipping { 
-       border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+   #tr-grand-total-id { 
+      border-top: 2px solid rgba(0, 0, 0, 0.05);
+      border-top: 0;
    }
-   
+ 
    #tr-shipping #dibs-easy-totals-lable-shipping {
        padding-bottom: 8px;
    }

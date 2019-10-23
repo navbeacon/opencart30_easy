@@ -629,7 +629,14 @@ class ModelExtensionPaymentDibseasy extends Model {
             foreach($totals['totals'] as $total) {
                     $shipping_method = isset($this->session->data['shipping_method']) ? $this->session->data['shipping_method'] : null;
                     $shipping_tax_class = isset($shipping_method['tax_class_id']) ? $shipping_method['tax_class_id'] : 0;
+                    
+                    if('tax_total_value' ==  $total['code']) {
+                        continue;
+                    }
+                    
+                    
                 if( in_array($total['code'], $this->additional_totals()) && abs($total['value']) > 0) {
+                    
                     if($total['code'] == 'shipping') {
                         $netPrice = $this->currency->format($total['value'], $this->session->data['currency'], '', false);
                         $grossPrice =  $this->currency->format($this->tax->calculate($total['value'], $shipping_tax_class, $this->config->get('config_tax')), $this->session->data['currency'], '', false);     
@@ -670,8 +677,16 @@ class ModelExtensionPaymentDibseasy extends Model {
                     'netTotalAmount' => $delta);
                    */
               } else {
+                  
+               
+                
                 $total = round($this->getGrandTotal(), (int)$this->currency->getDecimalPlace($this->session->data['currency'])) * 100;
                 if($total !=  $totalPriceCalculated) {
+                    error_log($total);
+                    //error_log($total);
+                    //error_log($totalPriceCalculated);
+                    
+                    
                     $delta = $total - $totalPriceCalculated;
                     $items[] = array(
                         'reference' => 'rouding',
@@ -685,6 +700,9 @@ class ModelExtensionPaymentDibseasy extends Model {
                         'netTotalAmount' => $delta);
                 }
             }
+            
+            //error_log( print_r($items ,true) );
+            
             return $items;
         }
 
@@ -738,12 +756,29 @@ class ModelExtensionPaymentDibseasy extends Model {
                     }
             }
             $totals_rounded;
+            $taxTotal = 0;
             foreach($total_data['totals'] as $d) {
                 $value = round($d['value'], (int)$this->currency->getDecimalPlace($this->session->data['currency']));
                 $d['value'] = $value;
                 $totals_rounded[] = $d;
+                
+                if( 'tax'  == $d['code'] ) {
+                    $taxTotal += $d['value'];
+                }
+                
             }
             $total_data['totals'] = $totals_rounded;
+            
+            if( $taxTotal > 0) {
+                $total_data['totals'][] = ['code' => 'tax_total_value',
+                                           'title' => 'Taxes',
+                                           'value' => $taxTotal,
+                                           'sort_order' => -1];
+            }
+            
+            error_log( print_r($total_data['totals'], true));
+            //error_log($taxTotal);
+            
             return $total_data;
         }
 
@@ -757,9 +792,10 @@ class ModelExtensionPaymentDibseasy extends Model {
            foreach($totals['totals'] as $total) {
                if ($total['code'] == 'total') {
                    $total = $total['value'];
+                   break;
                }
            }
-          return $total;
+           return $total;
        }
 
         protected function additional_totals() {
