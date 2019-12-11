@@ -1,3 +1,3 @@
 <?php
 // Text
-$_['text_title'] = 'Dibs Easy';
+$_['text_title'] = 'NETS Easy';

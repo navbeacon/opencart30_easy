@@ -1,3 +1,3 @@
 <?php
 // Text
-$_['text_title'] = 'Dibs Checkout';
+$_['text_title'] = 'NETS Checkout';

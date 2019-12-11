@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <modification>
-  <name>Dibs Easy Payment Modification</name>
+  <name>NEST Easy Payment Modification</name>
   <code>default</code>
   <version>1.0</version>
-  <author>DIBS</author>
+  <author>NEST</author>
   <link>http://www.opencart.com</link>
 <file path="catalog/controller/checkout/cart.php">
 <operation>

@@ -1,12 +1,12 @@
 <?php
 // Heading
-$_['heading_title'] = 'Dibs Checkout';
+$_['heading_title'] = 'Easy Checkout';
 
 // Text
 $_['text_extension'] = 'Extensions';
-$_['text_success'] = 'Success: You have modified Dibs Easy payment module!';
-$_['text_edit'] = 'Edit Dibs Easy';
-$_['text_dibseasy'] = '<a href= "http://www.dibs.se/" target="_blank"><img alt="Dibs" ешеду="Dibs" src="view/image/payment/dibs.png" style="width: 113px; height: 61px;"></a>';
+$_['text_success'] = 'Success: You have modified NETS Easy payment module!';
+$_['text_edit'] = 'Edit NETS Easy';
+$_['text_dibseasy'] = '<a href= "http://www.dibs.se/" target="_blank"><img alt="Dibs" src="view/image/payment/dibs.png" style="width: 113px; height: 61px;"></a>';
 
 // Entry
 $_['entry_total']        = 'Total';
@@ -44,7 +44,7 @@ $_['text_checkout_type_embedded'] = 'Embedded';
 $_['help_total'] = 'The checkout total the order must reach before this payment method becomes active.';
 
 // Error
-$_['entry_dibseasy_merchant'] = 'DIBS Merchant ID';
+$_['entry_dibseasy_merchant'] = 'NETS Merchant ID';
 $_['entry_dibseasy_checkoutkey'] = 'Checkout key';
 $_['entry_dibseasy_checkoutk_live'] = 'Checkout key';
 $_['entry_shipping_method'] = 'Shipping method:';

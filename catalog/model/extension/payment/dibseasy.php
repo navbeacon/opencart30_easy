@@ -438,11 +438,11 @@ class ModelExtensionPaymentDibseasy extends Model {
             switch($info['http_code']) {
                 
                 case 401:
-                  $message = 'Dibs Easy authorization filed. Check you keys';
+                  $message = 'NETS Easy authorization filed. Check you keys';
                 break;
                 
                 case 400:
-                   $message = 'Dibs Easy. Bad request: ' . $response;
+                   $message = 'NETS Easy. Bad request: ' . $response;
                 break;
             
                 case 404:
