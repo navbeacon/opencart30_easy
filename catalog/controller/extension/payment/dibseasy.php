@@ -68,12 +68,13 @@ class ControllerExtensionPaymentDibseasy extends Controller {
         }
 
         private function validateRequest() {
-             if (isset($this->session->data['payment_method']['code'])
+           $paymentId = $this->extractPaymentId();
+           if (isset($this->session->data['payment_method']['code'])
                        && $this->session->data['payment_method']['code'] == 'dibseasy'
-                       && !empty($this->extractPaymentId())) {
-                 return true;
-             }
-             return false;
+                       && !empty($paymentId)) {
+                return true;
+           }
+           return false;
         }
 
         private function extractPaymentId()
