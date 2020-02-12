@@ -6,7 +6,7 @@ $_['heading_title'] = 'Easy Checkout';
 $_['text_extension'] = 'Extensions';
 $_['text_success'] = 'Success: You have modified NETS Easy payment module!';
 $_['text_edit'] = 'Edit NETS Easy';
-$_['text_dibseasy'] = '<a href= "http://www.dibs.se/" target="_blank"><img alt="Dibs" src="view/image/payment/dibs.png" style="width: 113px; height: 61px;"></a>';
+$_['text_dibseasy'] = '<a href= "http://www.dibs.se/" target="_blank"><img alt="Dibs" src="view/image/payment/dibs.png" style="width: 86px; height: 30px;"></a>';
 
 // Entry
 $_['entry_total']        = 'Total';

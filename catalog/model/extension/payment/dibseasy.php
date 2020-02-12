@@ -1161,12 +1161,12 @@ class ModelExtensionPaymentDibseasy extends Model {
            }
            else return false;
     }
-  
-    public function validateAddress($address) {
-      return (!empty($address['shippingAddress']['country'] 
-             && !empty($address['shippingAddress']['postalCode'])) &&
-             (!empty($address['shippingAddress']['addressLine1'] ||
-             !empty( $address['shippingAddress']['addressLine1'])))); 
+
+    function validateAddress($address) {
+        return !empty($address['shippingAddress']['country'])
+            && !empty($address['shippingAddress']['postalCode'])
+            && (!empty($address['shippingAddress']['addressLine1'])
+            || !empty( $address['shippingAddress']['addressLine1']));
     }
 
     public function debug($prefix = '', $data) {
