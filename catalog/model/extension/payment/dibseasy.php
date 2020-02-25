@@ -522,7 +522,7 @@ class ModelExtensionPaymentDibseasy extends Model {
             $data = array(
                 'order' => array(
                     'items' => $this->getRequestObjectItems(),
-                    'amount' => round($this->currency->format($this->getGrandTotal(), $this->session->data['currency'], '', false) * 100),
+                    'amount' => $this->getNetsIntValue($this->getGrandTotal()),
                     'currency' => $this->session->data['currency'],
                     'reference' => uniqid('opc_')),
                  'checkout' => array(
@@ -608,101 +608,45 @@ class ModelExtensionPaymentDibseasy extends Model {
             $this->load->model('checkout/order');
             $items = array();
             foreach ($this->cart->getProducts() as $product) {
-                $netPrice = $this->currency->format($product['price'], $this->session->data['currency'], '', false);
-                $grossPrice =  $this->currency->format($this->tax->calculate($product['price'], $product['tax_class_id'], $this->config->get('config_tax')), $this->session->data['currency'], '', false);     
-                $taxAmount = $this->getTaxAmount($netPrice, $product['tax_class_id']);
-                $taxRates = $this->tax->getRates($netPrice,  $product['tax_class_id']);
-                $this->currency->format($product['price'], $this->session->data['currency'], '', false);
-                $taxRate = $this->getTotalTaxRate($product['tax_class_id']);
+                $netPrice = $this->formatPrice($product['price']);
+                $taxAmount = 0;
+                $taxRate = 0;
+                $qty = $product['quantity'];
+
                 $items[] = array(
                     'reference' => $product['product_id'],
                     'name' => str_replace(array('\'', '&'), '', $product['name']),
-                    'quantity' => $product['quantity'],
+                    'quantity' => $qty,
                     'unit' => 'pcs',
-                    'unitPrice' => round($netPrice * $product['quantity'] * 100),
-                    'taxRate' => $taxRate * 100,
-                    'taxAmount' => round(($taxAmount * $product['quantity']) * 100),
-                    'grossTotalAmount' => round($grossPrice * 100) * $product['quantity'],
-                    'netTotalAmount' => round($netPrice * $product['quantity'] * 100));
+                    'unitPrice' => $this->getNetsIntValue($netPrice * $qty),
+                    'taxRate' => $taxRate,
+                    'taxAmount' => $taxAmount,
+                    'grossTotalAmount' => $this->getNetsIntValue($netPrice * $qty),
+                    'netTotalAmount' => $this->getNetsIntValue($netPrice * $qty));
             }
-            $totals = $this->getTotals();
+            $totals = $this->getTotals(false);
             foreach($totals['totals'] as $total) {
-                    $shipping_method = isset($this->session->data['shipping_method']) ? $this->session->data['shipping_method'] : null;
-                    $shipping_tax_class = isset($shipping_method['tax_class_id']) ? $shipping_method['tax_class_id'] : 0;
-                    
-                    if('tax_total_value' ==  $total['code']) {
-                        continue;
-                    }
-                    
-                    
-                if( in_array($total['code'], $this->additional_totals()) && abs($total['value']) > 0) {
-                    
-                    if($total['code'] == 'shipping') {
-                        $netPrice = $this->currency->format($total['value'], $this->session->data['currency'], '', false);
-                        $grossPrice =  $this->currency->format($this->tax->calculate($total['value'], $shipping_tax_class, $this->config->get('config_tax')), $this->session->data['currency'], '', false);     
-                        $taxAmount = $this->tax->getTax($netPrice, $shipping_tax_class);
-                        $taxRate = $this->getTotalTaxRate($shipping_tax_class);
-                    } else {
-                        $grossPrice = $netPrice = $this->currency->format($total['value'], $this->session->data['currency'], '', false);
-                        $taxAmount = $taxRate = 0;
-                    }
-                    $price = $this->currency->format($total['value'], $this->session->data['currency'], '', false);
+                  if( in_array($total['code'], $this->additional_totals()) && abs($total['value']) > 0) {
+                        $netPrice = $total['value'];
+                        $taxAmount = 0;
+                        $taxRate = 0;
+
                     $items[] = array(
                         'reference' => $total['code'],
                         'name' => $total['title'],
                         'quantity' => 1,
                         'unit' => 1,
-                        'unitPrice' => round($netPrice * 100),
-                        'taxRate' => $taxRate * 100,
-                        'taxAmount' => round($taxAmount * 100),
-                        'grossTotalAmount' => round($grossPrice * 100),
-                        'netTotalAmount' => round($netPrice * 100));
+                        'unitPrice' => $this->getNetsIntValue($netPrice),
+                        'taxRate' => $taxRate,
+                        'taxAmount' => $taxAmount,
+                        'grossTotalAmount' => $this->getNetsIntValue($netPrice),
+                        'netTotalAmount' => $this->getNetsIntValue($netPrice));
                   }
               }
               $totalPriceCalculated = 0;
               foreach($items as $total) {
                   $totalPriceCalculated += $total['grossTotalAmount'];
               }
-              if(isset($this->session->data['coupon'])) {
-                  /* 
-                  $items[] = array(
-                    'reference' => 'coupon',
-                    'name' => 'Coupon',
-                    'quantity' => 1,
-                    'unit' => 1,
-                    'unitPrice' => $delta,
-                    'taxRate' => 0,
-                    'taxAmount' => 0,
-                    'grossTotalAmount' => $delta,
-                    'netTotalAmount' => $delta);
-                   */
-              } else {
-                  
-               
-                
-                $total = round($this->getGrandTotal(), (int)$this->currency->getDecimalPlace($this->session->data['currency'])) * 100;
-                if($total !=  $totalPriceCalculated) {
-                    error_log($total);
-                    //error_log($total);
-                    //error_log($totalPriceCalculated);
-                    
-                    
-                    $delta = $total - $totalPriceCalculated;
-                    $items[] = array(
-                        'reference' => 'rouding',
-                        'name' => 'rounding',
-                        'quantity' => 1,
-                        'unit' => 1,
-                        'unitPrice' => $delta,
-                        'taxRate' => 0,
-                        'taxAmount' => 0,
-                        'grossTotalAmount' => $delta,
-                        'netTotalAmount' => $delta);
-                }
-            }
-            
-            //error_log( print_r($items ,true) );
-            
             return $items;
         }
 
@@ -733,7 +677,7 @@ class ModelExtensionPaymentDibseasy extends Model {
             $this->db->query("UPDATE `" . DB_PREFIX . "order` SET ". $setFields ." date_modified = NOW() WHERE order_id = '" . (int)$order_id . "'");
         }
 
-        public function getTotals() {
+        public function getTotals($number_format = false) {
             $this->load->model('setting/extension');
             $totals = array();
             $taxes = $this->cart->getTaxes();
@@ -757,28 +701,27 @@ class ModelExtensionPaymentDibseasy extends Model {
             }
             $totals_rounded;
             $taxTotal = 0;
+
             foreach($total_data['totals'] as $d) {
-                $value = round($d['value'], (int)$this->currency->getDecimalPlace($this->session->data['currency']));
-                $d['value'] = $value;
+                $value = $d['value'];
+                if($number_format) {
+                    $decimal_place = $this->currency->getDecimalPlace($this->session->data['currency']);
+                    $d['value'] = number_format($this->formatPrice($value), $decimal_place, ".", ",");
+                } else {
+                    $d['value'] = $this->formatPrice($value);
+                }
                 $totals_rounded[] = $d;
-                
-                if( 'tax'  == $d['code'] ) {
+                if('tax'  == $d['code'] ) {
                     $taxTotal += $d['value'];
                 }
-                
             }
             $total_data['totals'] = $totals_rounded;
-            
-            if( $taxTotal > 0) {
+            if($taxTotal > 0) {
                 $total_data['totals'][] = ['code' => 'tax_total_value',
                                            'title' => 'Taxes',
-                                           'value' => $taxTotal,
+                                           'value' => ($number_format == true) ? number_format($taxTotal ,0, ".", ","): $taxTotal,
                                            'sort_order' => -1];
             }
-            
-            error_log( print_r($total_data['totals'], true));
-            //error_log($taxTotal);
-            
             return $total_data;
         }
 
@@ -787,7 +730,7 @@ class ModelExtensionPaymentDibseasy extends Model {
         * @return string
         */
        public function getGrandTotal() {
-           $totals = $this->getTotals();
+           $totals = $this->getTotals(false);
            $total = 0;
            foreach($totals['totals'] as $total) {
                if ($total['code'] == 'total') {
@@ -799,7 +742,7 @@ class ModelExtensionPaymentDibseasy extends Model {
        }
 
         protected function additional_totals() {
-            return array('shipping');
+            return array('shipping', 'tax_total_value');
         }
 
         public function getTaxAmount($value, $tax_class_id) {
@@ -955,7 +898,7 @@ class ModelExtensionPaymentDibseasy extends Model {
         */
        public function updateCart() 
        {
-           $totals = $this->getTotals();
+           $totals = $this->getTotals(false);
            $requestData = array(
              'amount' => round($this->currency->format($totals['total'], $this->session->data['currency'], '', false) * 100),
              'items' => $this->getRequestObjectItems(),
@@ -1136,8 +1079,6 @@ class ModelExtensionPaymentDibseasy extends Model {
                 default:
                     $prefix = '';
             }
-            
-            
             $phoneCleaned = str_replace(array('-','(', ')',' '),'', $phone);
             if(empty($prefix)) {
                 if(preg_match('/^\+[0-9]{8,15}/', $phoneCleaned) ) {
@@ -1177,5 +1118,16 @@ class ModelExtensionPaymentDibseasy extends Model {
            //echo "</pre>";
            $result = ob_get_clean();
            error_log($result);
+    }
+
+    private function formatPrice($value) {
+        error_log( '---====' . $value );
+        $result = $this->currency->format($value, $this->session->data['currency'], '', false);
+        error_log('result ---' . $result);
+        return $result;
+    }
+
+    private function getNetsIntValue($value) {
+        return (int) ($value * 100);
     }
 }

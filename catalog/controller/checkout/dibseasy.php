@@ -4,19 +4,19 @@ class ControllerCheckoutDibseasy extends Controller {
 
     public function index() {
                 // Validate cart has products and has stock.
-                if ((!$this->cart->hasProducts() && empty($this->session->data['vouchers']))
+        if ((!$this->cart->hasProducts() && empty($this->session->data['vouchers']))
                     || (!$this->cart->hasStock() && !$this->config->get('config_stock_checkout'))) {
                     $this->response->redirect($this->url->link('checkout/cart', '', true));
-                }
+         }
 
-                if('hosted' == $this->config->get('payment_dibseasy_checkout_type')) {
-                    $this->response->redirect($this->url->link('checkout/cart', '', true));
-                }
+        if('hosted' == $this->config->get('payment_dibseasy_checkout_type')) {
+          $this->response->redirect($this->url->link('checkout/cart', '', true));
+        }
 
-                $this->load->language('checkout/checkout');
-                $this->load->language('checkout/dibseasy');
-	        $this->document->setTitle($this->language->get('heading_title'));
-	        $this->document->addStyle('catalog/view/theme/default/stylesheet/easy_checkout.css');
+        $this->load->language('checkout/checkout');
+        $this->load->language('checkout/dibseasy');
+	    $this->document->setTitle($this->language->get('heading_title'));
+	    $this->document->addStyle('catalog/view/theme/default/stylesheet/easy_checkout.css');
  		$data['breadcrumbs'] = array();
         	$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('text_home'),
@@ -105,7 +105,7 @@ class ControllerCheckoutDibseasy extends Controller {
                    break;
             }
             $data['shipping_methods'] = $this->model_extension_payment_dibseasy->getShippingMethods();
-            $data['totals'] = $this->model_extension_payment_dibseasy->getTotals();
+            $data['totals'] = $this->model_extension_payment_dibseasy->getTotals(true);
             $data['code'] = isset($this->session->data['shipping_method']['code']) ? $this->session->data['shipping_method']['code'] : null;
             $data['checkout_url'] = $this->config->get('payment_dibseasy_otherpayment_button_url');
             if(empty($data['checkout_url'])) {
