@@ -1121,13 +1121,23 @@ class ModelExtensionPaymentDibseasy extends Model {
     }
 
     private function formatPrice($value) {
-        error_log( '---====' . $value );
-        $result = $this->currency->format($value, $this->session->data['currency'], '', false);
-        error_log('result ---' . $result);
-        return $result;
+        return $this->format($value, $this->session->data['currency'], '', false);
     }
 
     private function getNetsIntValue($value) {
         return (int) ($value * 100);
+    }
+
+    private function format($number, $currency, $value = '', $format = true) {
+        $decimal_place = $this->currency->getDecimalPlace($currency);
+        if(empty($decimal_place)) {
+            $decimal_place = 2;
+        }
+        if (!$value) {
+            $value = $this->currency->getValue($currency);
+        }
+        $amount = $value ? (float)$number * $value : (float)$number;
+        $amount = round($amount, (int)$decimal_place);
+        return $amount;
     }
 }
