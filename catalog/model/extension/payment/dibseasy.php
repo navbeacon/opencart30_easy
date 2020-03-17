@@ -742,7 +742,7 @@ class ModelExtensionPaymentDibseasy extends Model {
        }
 
         protected function additional_totals() {
-            return array('shipping', 'tax_total_value');
+            return array('shipping', 'tax_total_value', 'coupon');
         }
 
         public function getTaxAmount($value, $tax_class_id) {
