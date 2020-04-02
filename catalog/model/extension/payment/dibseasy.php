@@ -643,11 +643,26 @@ class ModelExtensionPaymentDibseasy extends Model {
                         'netTotalAmount' => $this->getNetsIntValue($netPrice));
                   }
               }
-              $totalPriceCalculated = 0;
+              $itemsPriceSumma = 0;
               foreach($items as $total) {
-                  $totalPriceCalculated += $total['grossTotalAmount'];
+                  $itemsPriceSumma += $total['grossTotalAmount'];
               }
-            return $items;
+
+              $orderGrandTotal = $this->getNetsIntValue($this->getGrandTotal());
+              if ($orderGrandTotal != $itemsPriceSumma) {
+                  $delta =  $orderGrandTotal - $itemsPriceSumma;
+                  $items[] = array(
+                      'reference' => 'rounding',
+                      'name' => 'rounding',
+                      'quantity' => 1,
+                      'unit' => 1,
+                      'unitPrice' => $delta,
+                      'taxRate' => 0,
+                      'taxAmount' => 0,
+                      'grossTotalAmount' => $delta,
+                      'netTotalAmount' => $delta);
+              }
+             return $items;
         }
 
         /**
@@ -700,26 +715,25 @@ class ModelExtensionPaymentDibseasy extends Model {
                     }
             }
             $totals_rounded;
-            $taxTotal = 0;
 
+            $taxTotal = array_sum($taxes);
+
+            $decimal_place = $this->currency->getDecimalPlace($this->session->data['currency']);
             foreach($total_data['totals'] as $d) {
                 $value = $d['value'];
                 if($number_format) {
-                    $decimal_place = $this->currency->getDecimalPlace($this->session->data['currency']);
                     $d['value'] = number_format($this->formatPrice($value), $decimal_place, ".", ",");
                 } else {
                     $d['value'] = $this->formatPrice($value);
                 }
                 $totals_rounded[] = $d;
-                if('tax'  == $d['code'] ) {
-                    $taxTotal += $d['value'];
-                }
-            }
+               }
             $total_data['totals'] = $totals_rounded;
+
             if($taxTotal > 0) {
                 $total_data['totals'][] = ['code' => 'tax_total_value',
                                            'title' => 'Taxes',
-                                           'value' => ($number_format == true) ? number_format($taxTotal ,0, ".", ","): $taxTotal,
+                                           'value' =>  ($number_format == true) ? number_format($taxTotal ,$decimal_place, ".", ","): $taxTotal,
                                            'sort_order' => -1];
             }
             return $total_data;
