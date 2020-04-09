@@ -377,6 +377,16 @@ class ModelExtensionPaymentDibseasy extends Model {
             if(!$this->cart->hasProducts()) {
                unset($this->session->data['dibseasy']['paymentid']);
             }
+
+          /*  if( !empty($this->session->data['dibseasy']['paymentid'])   &&
+                !empty( $this->session->data['dibseasy']['cart_hash'] ) &&
+                $this->session->data['dibseasy']['cart_hash'] ==  $this->getCartHash()) {*/
+
+
+            if( !empty($this->session->data['dibseasy']['paymentid'])) {
+                return $this->session->data['dibseasy']['paymentid'];
+            }
+
             $this->setPaymentMethod();
             if($this->config->get('payment_dibseasy_testmode') == 0) {
                 $url = self::PAYMENT_API_LIVE_URL;
@@ -694,6 +704,14 @@ class ModelExtensionPaymentDibseasy extends Model {
 
         public function getTotals($number_format = false) {
             $this->load->model('setting/extension');
+            $this->load->language('checkout/dibseasy');
+
+            $total_translations =
+                ['sub_total' => $this->language->get('totals_subtotal_label'),
+                 'shipping' => $this->language->get('totals_subtotal_shipping'),
+                 'tax' =>   $this->language->get('totals_tax_label')
+                ];
+
             $totals = array();
             $taxes = $this->cart->getTaxes();
             $total = 0;
@@ -714,25 +732,32 @@ class ModelExtensionPaymentDibseasy extends Model {
                             $this->{'model_extension_total_' . $result['code']}->getTotal($total_data);
                     }
             }
-            $totals_rounded;
 
             $taxTotal = array_sum($taxes);
 
             $decimal_place = $this->currency->getDecimalPlace($this->session->data['currency']);
             foreach($total_data['totals'] as $d) {
                 $value = $d['value'];
+
+                $code = $d['code'];
+                if(isset($total_translations[$code])) {
+                    $d['title'] = $total_translations[ $code ];
+                    error_log($code);
+
+                }
+
                 if($number_format) {
                     $d['value'] = number_format($this->formatPrice($value), $decimal_place, ".", ",");
                 } else {
                     $d['value'] = $this->formatPrice($value);
                 }
-                $totals_rounded[] = $d;
+                     $totals_rounded[] = $d;
                }
             $total_data['totals'] = $totals_rounded;
 
             if($taxTotal > 0) {
                 $total_data['totals'][] = ['code' => 'tax_total_value',
-                                           'title' => 'Taxes',
+                                           'title' => $this->language->get('totals_tax_label'),
                                            'value' =>  ($number_format == true) ? number_format($taxTotal ,$decimal_place, ".", ","): $taxTotal,
                                            'sort_order' => -1];
             }
@@ -1153,5 +1178,11 @@ class ModelExtensionPaymentDibseasy extends Model {
         $amount = $value ? (float)$number * $value : (float)$number;
         $amount = round($amount, (int)$decimal_place);
         return $amount;
+    }
+
+    private function getCartHash() {
+        $cart = $this->cart;
+        $cartProducts = $cart->getProducts();
+        return md5(serialize($cartProducts) . $this->session->getId());
     }
 }

@@ -3,7 +3,7 @@
 class ControllerCheckoutDibseasy extends Controller {
 
     public function index() {
-                // Validate cart has products and has stock.
+        // Validate cart has products and has stock.
         if ((!$this->cart->hasProducts() && empty($this->session->data['vouchers']))
                     || (!$this->cart->hasStock() && !$this->config->get('config_stock_checkout'))) {
                     $this->response->redirect($this->url->link('checkout/cart', '', true));
@@ -111,13 +111,19 @@ class ControllerCheckoutDibseasy extends Controller {
             if(empty($data['checkout_url'])) {
                 $data['checkout_url'] = $this->url->link('checkout/checkout', '', true);
             }
+
             $data['button_checkout_label'] = $this->language->get('button_checkout_label');
+
             $data['order_summary_label'] = $this->language->get('order_summary_label');
+
             $data['shipping_methods_label'] = $this->language->get('shipping_methods_label');
+
             $data['shipping_total_label'] = $this->language->get('shipping_total_label');
-            $data['tax_total_label'] = 'Moms';
+
             $data['currency_code'] = $this->session->data['currency'];
+
             $result = array('outputHtml' => $this->load->view('checkout/dibseasy_totals', $data));
+
         } catch(Exception $e) {
             $this->session->data['error'] = $e->getMessage();
             $result = array('outputHtml' => [], 'exception' => 1, 'message' => $e->getMessage());

@@ -30,7 +30,7 @@
          
          
          {% if total.code == "shipping" %}
-            <td class="dibs-easy-totals-lable" id="dibs-easy-totals-lable-{{ total.code }}" id="dibs-easy-totals-lable-{{ total.code }}">{{ shipping_total_label }}</td>  
+            <td class="dibs-easy-totals-lable" id="dibs-easy-totals-lable-{{ total.code }}" id="dibs-easy-totals-lable-{{ total.code }}">{{ total.title }}</td>
             <td class="dibs-easy-totals-total" id="dibs-easy-totals-{{ total.code }}" id="dibs-easy-totals-{{ total.code }}" align="right">
             <span id="dibs-easy-grand-shipping-value">{{ total.value }}</span></td>
          {% endif %}

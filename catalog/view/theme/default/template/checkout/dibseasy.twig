@@ -86,13 +86,13 @@
 <script>
      var checkoutOptions = {
                checkoutKey: "{{ checkoutkey }}",
-               paymentId : "{{ paymentId }}",
+               paymentId :  "{{ paymentId }}",
                containerId : "dibs-complete-checkout",
                language: "{{ language }}",
 	   };
 	  var checkout = new Dibs.Checkout(checkoutOptions);
               checkout.on('payment-completed', function(response) {
-                       var paymentId = response.paymentId;
+                       var paymentId =response.paymentId;
                        var checkoutUrl = "{{ checkoutconfirmurl}} &paymentId=" + paymentId;
                        window.location = checkoutUrl;
    		});

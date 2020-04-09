@@ -45,10 +45,11 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                             unset($this->session->data['dibseasy']['paymentid']);
                             $this->response->redirect($this->url->link('checkout/dibseasy_success', '', true));
                         } else {
-                            $this->response->redirect($this->url->link('checkout/checkout', '', true));
+                             $this->response->redirect($this->url->link('checkout/checkout', '', true));
                         }
         	} else {
-                    $this->response->redirect($this->url->link('checkout/dibseasy', '', true));
+                    exit;
+                    $this->response->redirect($this->url->link('checkout/cart', '', true));
                 }
    	}
 
@@ -69,12 +70,7 @@ class ControllerExtensionPaymentDibseasy extends Controller {
 
         private function validateRequest() {
            $paymentId = $this->extractPaymentId();
-           if (isset($this->session->data['payment_method']['code'])
-                       && $this->session->data['payment_method']['code'] == 'dibseasy'
-                       && !empty($paymentId)) {
-                return true;
-           }
-           return false;
+           return !empty($paymentId) ? true : false;
         }
 
         private function extractPaymentId()
