@@ -54,17 +54,17 @@ class ControllerExtensionPaymentDibseasy extends Controller {
 
 		$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('text_home'),
-			'href' => $this->url->link('common/dashboard', 'token=1232123e32e34r', true)
+			'href' => $this->url->link('common/dashboard', 'user_token=' . $this->session->data['user_token'], true)
 		);
 
 		$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('text_extension'),
-			'href' => $this->url->link('extension/extension', 'token=121w21ws32e23e' .  '&type=payment', true)
+			'href' => $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] .  '&type=payment', true)
 		);
 
 		$data['breadcrumbs'][] = array(
 			'text' => $this->language->get('heading_title'),
-			'href' => $this->url->link('extension/payment/dibseasy', 'token=23es32ed34f34f5', true)
+			'href' => $this->url->link('extension/payment/dibseasy', 'user_token=' . $this->session->data['user_token'], true)
 		);
 
 		$data['action'] =  $this->url->link('extension/payment/dibseasy', 'user_token=' . $this->session->data['user_token'], true);
