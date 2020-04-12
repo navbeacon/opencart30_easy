@@ -39,8 +39,6 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                 $data['entry_dibseasy_terms_and_conditions'] = $this->language->get('entry_dibseasy_terms_and_conditions');
                 $data['entry_dibseasy_sort_order'] = $this->language->get('entry_dibseasy_sort_order');
                 $data['entry_allowed_customer_type'] = $this->language->get('entry_allowed_customer_type');
-                $data['entry_dibseasy_otherpayment_button_url'] = $this->language->get('entry_dibseasy_otherpayment_button_url');
-                $data['entry_dibseasy_otherpayment_button_url_comment'] = $this->language->get('entry_dibseasy_otherpayment_button_url_comment');
                 $data['text_b2c'] = $this->language->get('text_b2c');
                 $data['text_b2b'] = $this->language->get('text_b2b');
                 $data['text_b2c_b2b_b2c'] = $this->language->get('text_b2c_b2b_b2c');
@@ -153,12 +151,6 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                     $data['dibseasy_debug_mode'] = $this->request->post['dibseasy_debug_mode'];
                 } else {
                     $data['dibseasy_debug_mode'] = $this->config->get('dibseasy_debug_mode');
-                }
-
-                if(isset($this->request->post['payment_dibseasy_otherpayment_button_url'])) {
-                    $data['payment_dibseasy_otherpayment_button_url'] = $this->request->post['payment_dibseasy_otherpayment_button_url'];
-                } else {
-                    $data['payment_dibseasy_otherpayment_button_url'] = $this->config->get('payment_dibseasy_otherpayment_button_url');
                 }
 
                 if(isset($this->request->post['payment_dibseasy_checkout_type'])) {

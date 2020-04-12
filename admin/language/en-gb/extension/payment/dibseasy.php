@@ -25,8 +25,6 @@ $_['entry_debug_description'] = 'Debug info will be written in the log file: sys
 $_['entry_language'] = 'Language';
 $_['entry_dibseasy_terms_and_conditions'] = ' Terms & conditions';
 $_['entry_allowed_customer_type'] = 'Allowed customer type';
-$_['entry_dibseasy_otherpayment_button_url'] = '"Use other payment method" button url';
-$_['entry_dibseasy_otherpayment_button_url_comment'] = 'Url that points to standart checkout page. If not set it will be https://yourshop.com/index.php?route=checkout/checkout. Please use full url';
 $_['entry_dibseasy_sort_order'] = 'Sort order';
 
 $_['text_english']   = 'English';
