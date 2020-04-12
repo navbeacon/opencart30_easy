@@ -32,4 +32,18 @@
       </add>
     </operation>
 </file>
+
+    <file path="catalog/controller/common/header.php">
+        <operation>
+            <search trim="true|false">
+                <![CDATA[return $this->load->view('common/header', $data);]]>
+            </search>
+            <add position="before" offset="0">
+                <![CDATA[$this->load->model('setting/setting');
+            $settings = $this->model_setting_setting->getSetting('payment_dibseasy');
+            if(!empty($settings['payment_dibseasy_status']) && 'embedded' == $settings['payment_dibseasy_checkout_type']) {
+            $data['checkout'] = $this->url->link('checkout/dibseasy', '', true);}]]>
+            </add>
+        </operation>
+    </file>
 </modification>
