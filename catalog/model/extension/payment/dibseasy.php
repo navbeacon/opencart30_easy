@@ -378,12 +378,7 @@ class ModelExtensionPaymentDibseasy extends Model {
                unset($this->session->data['dibseasy']['paymentid']);
             }
 
-          /*  if( !empty($this->session->data['dibseasy']['paymentid'])   &&
-                !empty( $this->session->data['dibseasy']['cart_hash'] ) &&
-                $this->session->data['dibseasy']['cart_hash'] ==  $this->getCartHash()) {*/
-
-
-            if( !empty($this->session->data['dibseasy']['paymentid'])) {
+            if(!empty($this->session->data['dibseasy']['paymentid'])) {
                 return $this->session->data['dibseasy']['paymentid'];
             }
 
@@ -576,7 +571,7 @@ class ModelExtensionPaymentDibseasy extends Model {
                      $phonePrefix = substr($telephone, 0, 3);
                      $number = substr($telephone, 3);
                      $consumerData['phoneNumber'] = ['prefix' => $phonePrefix, 'number' => $number];
-                     
+
                      $consumerData = array(
                         'email' => $email,
                         "shippingAddress" => array(
@@ -591,6 +586,9 @@ class ModelExtensionPaymentDibseasy extends Model {
                             'lastName' => !empty($this->session->data['shipping_address']['lastname']) ? $this->session->data['shipping_address']['lastname']: 'LastName',
                        )
                      );
+
+
+
                      
                      if( 'b2c' ==  $customerType && $this->validateAddress($consumerData) ) {
                          $data['checkout']['consumer'] = $consumerData;
@@ -615,12 +613,24 @@ class ModelExtensionPaymentDibseasy extends Model {
         }
 
         public function getRequestObjectItems() {
+
+
+
             $this->load->model('checkout/order');
             $items = array();
             foreach ($this->cart->getProducts() as $product) {
                 $netPrice = $this->formatPrice($product['price']);
-                $taxAmount = 0;
-                $taxRate = 0;
+
+                $rates = $this->cart->tax->getRates($netPrice, $product['tax_class_id']);
+
+                $taxAmount = $this->cart->tax->getTax($netPrice, $product['tax_class_id']);
+
+                $taxRate = $taxAmount / ( $netPrice / 100 );
+
+                $taxAmount = $this->formatPrice( $taxAmount );
+
+                $grossTotalAmount = $this->formatPrice($netPrice) + $this->formatPrice($taxAmount);
+
                 $qty = $product['quantity'];
 
                 $items[] = array(
@@ -628,19 +638,42 @@ class ModelExtensionPaymentDibseasy extends Model {
                     'name' => str_replace(array('\'', '&'), '', $product['name']),
                     'quantity' => $qty,
                     'unit' => 'pcs',
-                    'unitPrice' => $this->getNetsIntValue($netPrice * $qty),
-                    'taxRate' => $taxRate,
-                    'taxAmount' => $taxAmount,
-                    'grossTotalAmount' => $this->getNetsIntValue($netPrice * $qty),
+                    'unitPrice' => $this->getNetsIntValue($netPrice),
+                    'taxRate' => $this->getNetsIntValue($taxRate),
+                    'taxAmount' => $this->getNetsIntValue($taxAmount * $qty),
+                    'grossTotalAmount' => $this->getNetsIntValue($grossTotalAmount * $qty),
                     'netTotalAmount' => $this->getNetsIntValue($netPrice * $qty));
             }
+
+
+            if(!empty($this->session->data['shipping_method']['cost'])) {
+
+                $shippingNetPrice = $this->formatPrice( (float)$this->session->data['shipping_method']['cost']);
+
+                $taxAmount = $this->cart->tax->getTax($shippingNetPrice, $this->session->data['shipping_method']['tax_class_id']);
+
+                $taxRate = $taxAmount / ( $shippingNetPrice / 100 );
+
+                $grossShippingPtice = $this->formatPrice($shippingNetPrice) + $this->formatPrice($taxAmount);
+
+                $items[] = array(
+                    'reference' => 'Shipping',
+                    'name' => 'shipping',
+                    'quantity' => 1,
+                    'unit' => 'pcs',
+                    'unitPrice' => $this->getNetsIntValue($shippingNetPrice),
+                    'taxRate' => $this->getNetsIntValue($taxRate),
+                    'taxAmount' => $this->getNetsIntValue($taxAmount),
+                    'grossTotalAmount' => $this->getNetsIntValue($grossShippingPtice),
+                    'netTotalAmount' => $this->getNetsIntValue($shippingNetPrice));
+            }
+
             $totals = $this->getTotals(false);
             foreach($totals['totals'] as $total) {
                   if( in_array($total['code'], $this->additional_totals()) && abs($total['value']) > 0) {
                         $netPrice = $total['value'];
                         $taxAmount = 0;
                         $taxRate = 0;
-
                     $items[] = array(
                         'reference' => $total['code'],
                         'name' => $total['title'],
@@ -781,7 +814,7 @@ class ModelExtensionPaymentDibseasy extends Model {
        }
 
         protected function additional_totals() {
-            return array('shipping', 'tax_total_value', 'coupon');
+            return array('coupon');
         }
 
         public function getTaxAmount($value, $tax_class_id) {
