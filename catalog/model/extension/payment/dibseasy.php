@@ -378,9 +378,12 @@ class ModelExtensionPaymentDibseasy extends Model {
                unset($this->session->data['dibseasy']['paymentid']);
             }
 
+            // need more investigation
+            // https://dibs.zendesk.com/agent/tickets/377657
+            /*
             if(!empty($this->session->data['dibseasy']['paymentid'])) {
                 return $this->session->data['dibseasy']['paymentid'];
-            }
+            }*/
 
             $this->setPaymentMethod();
             if($this->config->get('payment_dibseasy_testmode') == 0) {
