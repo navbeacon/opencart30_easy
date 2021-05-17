@@ -76,29 +76,40 @@
     </div>
     {{ column_right }}</div>
 </div>
-{{ footer }}
+
 
 <script>
+  
      var checkoutOptions = {
                checkoutKey: "{{ checkoutkey }}",
                paymentId :  "{{ paymentId }}",
                containerId : "dibs-complete-checkout",
                language: "{{ language }}",
 	   };
+   
 	  var checkout = new Dibs.Checkout(checkoutOptions);
-              checkout.on('payment-completed', function(response) {
+          
+               checkout.on('pay-initialized', function(response) {
+                   if($('#nets-checkout-iframe').contents().closest('.card-input').val() ){
+                       //$('.dibs-easy-shipping-selector').attr('onclick','javascript:void()'); 
+                   }
+                   $('.dibs-easy-shipping-selector').attr('onclick','javascript:void()'); 
+                   checkout.send('payment-order-finalized', true);
+                   
+                });
+              {#checkout.on('payment-completed', function(response) {
                        var paymentId =response.paymentId;
                        var checkoutUrl = "{{ checkoutconfirmurl}} &paymentId=" + paymentId;
                        window.location = checkoutUrl;
-   		});
+              });#}
 
                 checkout.on('address-changed', function(response) {
                     customerIsLoggedIn = true;
                     updateView({'action':'address-changed'});
                 });
-
+                 
                 checkout.on('payment-completed', function(response) {
-                    window.location = 'index.php?route=extension/payment/dibseasy/confirm' + '&paymentId=' + response.paymentId;;
+                    window.location = 'index.php?route=extension/payment/dibseasy/confirm' + '&paymentId=' + response.paymentId;
                 });
 
                 cartRemove = cart.remove;
@@ -137,6 +148,7 @@
       function updateView (params) {
           ct = this;
           ct.checkout.freezeCheckout();
+          
           $.post('index.php?route=checkout/dibseasy/updateview', params ,function() {
           }).done(function(result) {
             var result = JSON.parse(result);
@@ -148,3 +160,5 @@
        });
     }
 </script>
+
+{{ footer }}
