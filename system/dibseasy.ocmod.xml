@@ -14,7 +14,7 @@
         <![CDATA[ $this->load->model('setting/setting');
         $settings = $this->model_setting_setting->getSetting('payment_dibseasy');
         if(!empty($settings['payment_dibseasy_status']) && 'embedded' == $settings['payment_dibseasy_checkout_type']) {
-            $data['checkout'] = $this->url->link('checkout/dibseasy', '', true);}]]>
+            $data['checkout'] = $this->url->link('checkout/checkout', '', true);}]]>
       </add>
     </operation>
 </file>
@@ -28,7 +28,7 @@
         <![CDATA[$this->load->model('setting/setting');
             $settings = $this->model_setting_setting->getSetting('payment_dibseasy');
             if(!empty($settings['payment_dibseasy_status']) && 'embedded' == $settings['payment_dibseasy_checkout_type']) {
-            $data['checkout'] = $this->url->link('checkout/dibseasy', '', true);}]]>
+            $data['checkout'] = $this->url->link('checkout/checkout', '', true);}]]>
       </add>
     </operation>
 </file>
@@ -42,7 +42,7 @@
                 <![CDATA[$this->load->model('setting/setting');
             $settings = $this->model_setting_setting->getSetting('payment_dibseasy');
             if(!empty($settings['payment_dibseasy_status']) && 'embedded' == $settings['payment_dibseasy_checkout_type']) {
-            $data['checkout'] = $this->url->link('checkout/dibseasy', '', true);}]]>
+            $data['checkout'] = $this->url->link('checkout/checkout', '', true);}]]>
             </add>
         </operation>
     </file>
