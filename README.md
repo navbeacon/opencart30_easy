@@ -29,7 +29,6 @@ NOTE : .
 2. Supports traditional checkout with Hosted Payment Window
 3. Supports discount, auto-capture, merchant terms url, cancel url and auto update payment status 
 
-
 ### Configuration
 1. To configure and setup the plugin navigate to : Admin > Extensions > Extensions > Choose the extension type > Payments 
 2. Locate the Nets payment plugin and press the Edit button to access Configuration.

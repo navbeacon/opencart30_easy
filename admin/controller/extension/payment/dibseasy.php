@@ -7,6 +7,7 @@ class ControllerExtensionPaymentDibseasy extends Controller {
     public function __construct($registry) {
         parent::__construct($registry);
         //create updatePaymentStatus event only once onclick of Easy Checkout setting page
+
         $order_query = $this->db->query("SELECT event_id FROM `" . DB_PREFIX . "event`  WHERE code = 'update_payment_status'");
         if (empty($order_query->num_rows)) {
             $this->load->model('setting/event');
@@ -20,6 +21,7 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                 $this->db->query("INSERT INTO `" . DB_PREFIX . "order_status` SET language_id = 1, name= '" . $status . "'");
             }
         }
+
     }
 
     public function index() {
@@ -188,11 +190,13 @@ class ControllerExtensionPaymentDibseasy extends Controller {
         } else {
             $data['payment_dibseasy_sort_order'] = $this->config->get('payment_dibseasy_sort_order');
         }
+
         if (isset($this->request->post['payment_dibseasy_autocapture'])) {
             $data['payment_dibseasy_autocapture'] = $this->request->post['payment_dibseasy_autocapture'];
         } else {
             $data['payment_dibseasy_autocapture'] = $this->config->get('payment_dibseasy_autocapture');
         }
+
         $data['checkout_key_test'] = '';
         if (isset($this->error['checkout_key_test'])) {
             $data['checkout_key_test'] = $this->error['checkout_key_test'];

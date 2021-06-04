@@ -46,6 +46,7 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                 $this->model_checkout_order->addOrderHistory($this->session->data['order_id'], $this->config->get('payment_dibseasy_order_status_id'), $transactDetails, true);
                 //save payment id into order table.custom_field
                 $this->db->query("UPDATE " . DB_PREFIX . "order SET custom_field = '" . $this->session->data['dibseasy']['paymentid'] . "' WHERE order_id = '" . $this->session->data['order_id'] . "'");
+
                 unset($this->session->data['dibseasy']['paymentid']);
 
                 $this->response->redirect($this->url->link('checkout/dibseasy_success', '', true));

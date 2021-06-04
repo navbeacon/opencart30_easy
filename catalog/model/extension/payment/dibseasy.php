@@ -612,7 +612,9 @@ class ModelExtensionPaymentDibseasy extends Model {
                 }
             }
             $data['checkout']['returnUrl'] = $this->url->link('extension/payment/dibseasy/confirm', '', true);
+
             $data['checkout']['cancelUrl'] = $this->url->link('checkout/cart', '', true);
+
             $data['checkout']['integrationType'] = 'HostedPaymentPage';
         }
 
