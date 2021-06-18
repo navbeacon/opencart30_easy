@@ -22,6 +22,7 @@ class ControllerExtensionPaymentDibseasy extends Controller {
             }
         }
 
+        
     }
 
     public function index() {
@@ -299,14 +300,17 @@ class ControllerExtensionPaymentDibseasy extends Controller {
         }
         return !$this->error ? true : false;
     }
-
+    //update payment status on order view page based on API get request
     public function updatePaymentStatus() {
 
         if ($this->config->get('payment_dibseasy_testmode')) {
             $secretKey = $this->config->get('payment_dibseasy_testkey');
+            $apiUrl = "https://test.api.dibspayment.eu/v1/payments/";
         } else {
             $secretKey = $this->config->get('payment_dibseasy_livekey');
+            $apiUrl = 'https://api.dibspayment.eu/v1/payments/';
         }
+        
         $secretKeyArr = explode("-", $secretKey);
         if (isset($secretKeyArr['3'])) {
             $secretKey = $secretKeyArr['3'];
@@ -326,7 +330,7 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                 }
                 //get payment responce
                 $payId = $order_query->row['custom_field'];
-                $ch = curl_init("https://test.api.dibspayment.eu/v1/payments/" . $payId);
+                $ch = curl_init($apiUrl . $payId);
                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 curl_setopt($ch, CURLOPT_HTTPHEADER, array(
