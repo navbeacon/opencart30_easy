@@ -1,4 +1,48 @@
-{% if shipping_methods %}
+{% if consumer_data %}
+    <div id="dibs-easy-shipping-title" class="dibs-easy-ctrl-title">{{consumer_data_label}}</div>
+    <div id="dibs-easy-shipping-methods">
+        <div class="dibs-easy-shipping-method-wrapper">
+       {% for consumer in consumer_data %}
+           
+           {% if consumer.name %}
+                <div class="pd20"><b> {{consumer_data_name_label}}:</b> <span class="pd30">{{ consumer.name }}</span> </div>
+           {% endif %} 
+           
+           {% if consumer.email %}
+                <div class="pd20"><b> {{consumer_data_email_label}}: </b> <span class="pd30">{{ consumer.email }}</span></div>
+           {% endif %}
+            
+            {% if consumer.phoneNumber %}
+                <div class="pd20"><b> {{consumer_data_phone_label}}: </b> <span class="pd30">{{ consumer.phoneNumber }}</span></div>
+            {% endif %} 
+            
+            {% if consumer.addressLine1 %}
+                <div class="pd20"><b> {{consumer_data_address1_label}}: </b> <span class="pd30">{{ consumer.addressLine1 }}</span></div>
+            {% endif %} 
+            
+            {% if consumer.addressLine2 %}
+                <div class="pd20"> <span class="pd30">{{ consumer.addressLine2 }}</span></div>
+            {% endif %} 
+            
+            {% if consumer.postalCode %}
+                <div class="pd20"><b> {{consumer_data_postalcode_label}}: </b> <span class="pd30">{{ consumer.postalCode }}</span></div>
+            {% endif %} 
+            
+            {% if consumer.city %}
+                <div class="pd20"><b> {{consumer_data_city_label}}: </b> <span class="pd30">{{ consumer.city }}</span></div>
+            {% endif %}
+            
+            {% if consumer.country %}
+                <div class="pd20"><b> {{consumer_data_country_label}}: </b> <span class="pd30">{{ consumer.country }}</span></div>
+            {% endif %} 
+            
+      {% endfor %}
+        <div class="clear"></div>
+        </div>
+    </div>
+  {% endif %}
+  
+  {% if shipping_methods %}
     <div id="dibs-easy-shipping-title" class="dibs-easy-ctrl-title">{{shipping_methods_label}}</div>
     <div id="dibs-easy-shipping-methods">
         <div class="dibs-easy-shipping-method-wrapper">
@@ -62,3 +106,7 @@
    
   </tbody>
  </table>
+ <style>
+      .pd30{ padding-left: 30px }
+      .pd20{ padding-bottom: 10px }
+  </style> 
