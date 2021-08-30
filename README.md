@@ -7,7 +7,7 @@
 |Prefix | `EASY-OC3`
 |Shop Version | `3+`
 |Version | `1.1.3`
-|Guide | https://tech.nets.eu/shopmodules
+|Guide | https://developers.nets.eu/nets-easy/en-EU/docs/nets-easy-for-opencart/nets-easy-for-opencart-opencart-30/
 |Github | https://github.com/DIBS-Payment-Services/opencart30_easy
 
 ## INSTALLATION
