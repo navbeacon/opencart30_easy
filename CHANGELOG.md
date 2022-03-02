@@ -6,11 +6,17 @@
 |Author | `Nets eCom`
 |Prefix | `EASY-OC3`
 |Shop Version | `3+`
-|Version | `1.1.3`
+|Version | `1.1.4`
 |Guide | https://tech.nets.eu/shopmodules
-|Github | https://github.com/DIBS-Payment-Services/opencart30_easy
+|Github | https://github.com/Nets-eCom/opencart30_easy
 
 ## CHANGELOG
+
+### Version 1.1.4 - Released 2022-03-01
+* Update : 1. Added administration area feature partial payments in order detail page,
+			  The available payment operaions are partial charge, partal refund, charge all, refund all and cancel payment.
+		   2. Webhooks are available for handling change in payment status.
+		   3  Added front end and back end debug modes.
 
 
 ### Version 1.1.3 - Released 2021-06-04

@@ -17,6 +17,27 @@ class ModelExtensionPaymentDibseasy extends Model {
     public function __construct($registry) {
         $this->logger = new Log('dibs.easy.log');
         parent::__construct($registry);
+		
+		//For webhooks 
+		$result = $this->db->query("CREATE TABLE IF NOT EXISTS `tbl_webhooks` (
+		`fldID` int(255) unsigned NOT NULL auto_increment,		
+		`fldMID` int(50) default NULL,
+		`fldPID` varchar(50) default NULL,		
+		`fldDate` datetime DEFAULT NULL,		
+		 PRIMARY KEY (`fldID`)
+		)");		 
+  
+		$result = $this->db->query("CREATE TABLE IF NOT EXISTS `tbl_webhook_events` (
+		`fldID` int(10) unsigned NOT NULL auto_increment,		
+		`fldHookID` int(250) default NULL,
+		`fldEID` varchar(50) default NULL,
+		`fldEvent` varchar(100) default NULL,	
+		`fldData` text DEFAULT NULL,
+		`fldSort` int(4) NOT NULL DEFAULT 0,
+		`fldStamp` varchar(100) DEFAULT NULL,
+		PRIMARY KEY (`fldID`)
+		)");	 
+
     }
 
     public function getMethod($address, $total) {
@@ -552,7 +573,7 @@ class ModelExtensionPaymentDibseasy extends Model {
         );
         $data['checkout']['merchantHandlesConsumerData'] = true;
 
-        //echo "<pre>";print_r($data);die;
+        
 
         if ('embedded' == $this->config->get('payment_dibseasy_checkout_type')) {
             $data['checkout']['url'] = $this->url->link('extension/payment/dibseasy/confirm', '', true);
@@ -617,7 +638,37 @@ class ModelExtensionPaymentDibseasy extends Model {
 
             $data['checkout']['integrationType'] = 'HostedPaymentPage';
         }
-
+		//Webhooks 
+        if ($this->config->get('payment_dibseasy_wb_auth') != '') {
+		    $webHookUrl = $this->config->get('payment_dibseasy_wb_url');
+            $authKey = $this->config->get('payment_dibseasy_wb_auth');//AZ-12345678-az
+            
+            $data['notifications'] = array(
+                'webhooks' => array(
+                    array(
+                        'eventName' => 'payment.checkout.completed',
+                        'url' => $webHookUrl,
+                        'authorization' => $authKey
+                    ),
+                    array(
+                        'eventName' => 'payment.charge.created',
+                        'url' => $webHookUrl,
+                        'authorization' => $authKey
+                    ),
+                    array(
+                        'eventName' => 'payment.refund.completed',
+                        'url' => $webHookUrl,
+                        'authorization' => $authKey
+                    ),
+                    array(
+                        'eventName' => 'payment.cancel.created',
+                        'url' => $webHookUrl,
+                        'authorization' => $authKey
+                    )
+                )
+            );
+        }
+		//echo "<pre>";print_r($data);die;
         if ($consumerType) {
             $checkout = $data['checkout'];
             $checkout['consumerType'] = $consumerType;
@@ -665,8 +716,9 @@ class ModelExtensionPaymentDibseasy extends Model {
                     $grossTotalAmount = $this->formatAmount($netPrice * ($taxAmount));
                 }
             }
+			
             $items[] = $productItemsArray[] = array(
-                'reference' => $product['product_id'],
+                'reference' => $product['model'],
                 'name' => str_replace(array('\'', '&'), '', $product['name']),
                 'quantity' => $qty,
                 'unit' => 'pcs',

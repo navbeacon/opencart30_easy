@@ -1,0 +1,157 @@
+.frame-wrapper.nets { border: 1px solid #abbedb; }
+.frame-wrapper.nets .frame-content { padding: 0px; }
+.frame-head.nets { background-color: #3473aa !important; }
+.frame-head.nets > .title { color: #fff !important; }
+.nets-container { margin-top: -10px; padding: 0px; border: 0px solid #ddd; text-align:left; }
+.nets-container li { list-style:none; }
+
+pre { margin: 20px -5px 25px 15px; padding: 15px; background: #455468; color: #fff; }
+
+.gx-compatibility .main-page-content button,
+.gx-compatibility .main-page-content input[type="button"],
+.gx-container input[type="button"] { min-width:36px; }
+
+td.edittext:first-child { width:30% !important; }
+
+.left{ text-align: left !important; }
+.right{ text-align: right !important; }
+.center{ text-align: center !important; }
+.pl{ padding-left: 10px !important; }
+.pr{ padding-right: 10px !important; }
+
+.nets-logo { padding-bottom: 15px; text-align: right; }
+.nets-logo .status { float: left; text-transform: uppercase; color: #424242; font-size: 14px; line-height: 32px; }
+.nets-logo span { color: #055b79; }
+.nets-logo span.fail { color: #bb3805; }
+.nets-header { padding: 10px; background: #eee; }
+.nets-body { display: flex; padding: 15px 2px; }
+.nets-block { width: 100%; margin-top: 10px; padding: 10px; background: #eee; text-transform: uppercase; }
+#cancelorder { width: 50%; padding-right: 5px; }
+#captureorder { width: 50%; padding-left: 5px; }
+#refundorder { width: 100%; }
+.nets-btn {
+  margin: 0 !important; 
+  padding: 6px 16px !important; 
+  line-height: 20px;
+  color:#fff !important; 
+  border: 0px !important; 
+  border-radius: 3px !important; 
+  cursor: pointer !important; 
+  text-transform: uppercase;
+}
+.nets-btn img { height: 12px; }
+.nets-btn.cancel { background:#e37e12 !important; }
+.nets-btn.capture { background:#00f0b8 !important; }
+.nets-btn.capture-all { background:#00f03c !important; }
+.nets-btn.refund { background:#00bef0 !important; }
+.nets-btn.refund-all { background:#0096f0 !important; }
+.nets-status { padding: 0px; color: #055b79; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+
+#testorder { width: 100%; padding-top: 15px; }
+#testput { width: calc(100% - 20px); padding: 6px 8px; background: #f1f1f1; color: #188cb5; border: 1px solid #ddd; border-radius: 3px; letter-spacing: .05em; }
+#testput:focus { outline: none; border: 1px solid #a4d0db; }
+textarea { 
+  display: block;
+  margin-top: 30px;
+  min-height: 200px;
+  width: calc(100% - 25px);
+  padding: 10px;
+  background: #4c646a;
+  color: #fff;
+  letter-spacing: .05em;
+  line-height: 1.3em;
+  border: 1px solid #fff;
+  border-radius: 5px;
+}
+.nets-block thead th{ border-bottom: 1px solid #dfdfdf !important;padding-right: 20px; }
+td.listing { padding: 5px 20px 0px 0px; font-size: 11px; }
+td.listing.bottom { background-color: #f9f9f9; border-bottom: 1px solid #b6b6b6; }
+td.listing.top { border-top: 1px solid #b6b6b6; }
+
+td.listing.top.reserve .nets-status { color: #2da1ca; }
+td.listing.top.charge .nets-status { color: #399b15; }
+
+td.listing.top.refund { background: #aecdff; }
+td.listing.top.refund .nets-status { color: #055b79; }
+
+td.listing.top.cancel { background: #e8acac; }
+td.listing.top.cancel .nets-status { color: #952828; }
+
+td.listing.top.fail { background: #323232; }
+td.listing.top.fail .nets-status { color: #fff; }
+
+td.listing.top.partial-charge { background: #f0f7ea; }
+td.listing.top.partial-charge .nets-status { color: #399b15; }
+td.listing.partial-charge { padding: 0px 12px; background: #f6ffee; border-top: 1px solid #e9f0e1; }
+
+.qty-box { width: 100%; margin:0; padding:0px; text-transform:uppercase; }
+
+.quantity{ left:0; padding: 0; display: inline-flex; }
+.quantity .value{ width:35px; margin: 0; text-align:center;	border:1px solid #b6b6b6; border-left:0px; border-right:0px; border-radius:0; background:#fff; }
+.amount{ border:0 !important; color:#323232 !important; font-weight:bold;text-align:center;padding: 0 !important;height: 21px !important; text-transform:uppercase; }
+
+input#single.amount,
+input#box.amount { background: #efefef !important;width: 50%; }
+input[class*="minus"],
+input[class*="plus"] {
+	width: 30px;
+	margin: 0 !important;
+	padding: 0 !important;
+	background: #f6f7f8 !important;
+	border: 1px solid #b6b6b6 !important;
+	font-size: 24px !important;
+	line-height: 24px;
+	text-align: center !important;
+}
+input.single.qty.value:focus-visible { border: 1px solid #b6b6b6; border-left: 0px; border-right: 0px; outline: none !important; }
+
+.qty-box.charge input[class*="minus"], .qty-box.charge input[class*="plus"] { color: #00bef0; }
+.qty-box.refund input[class*="minus"], .qty-box.refund input[class*="plus"] { color: #e37e12; }
+
+input[class*="minus"] { border-radius:3px 0px 0px 3px !important; border-right: 0px !important; }
+input[class*="plus"] { border-radius:0px 3px 3px 0px !important; border-left: 0px !important; }
+.is-disabled,
+.is-disabled:hover,
+.is-disabled:focus,
+.is-disabled:active,
+.minus.is-disabled,
+.plus.is-disabled { color: #ddd !important; cursor:default; }
+.basket_btn.is-disabled { background: red !important; color:#fff !important; }
+input[type="button"].is-disabled { color: #ddd; cursor:default; }
+input[type="button"]:hover { background: #fbfbfb; }
+.item-listing { background: #f6f7f8; padding: 6px 10px; margin: 15px 0px 10px 0px; border-radius: 3px; }
+.item-listing.charged { border: 1px solid #bce2ec; }
+.item-listing.refunded { border: 1px solid #eec293; }
+.pid { color: #5159ce; }
+
+.grid {
+  width: 100%;   
+  box-sizing: border-box;   
+  display: inline-block
+}
+remove-padding {
+  padding: 0 !important;
+}
+.frame-wrapper.nets {
+  border: 1px solid #abbedb;
+  border-radius: 2px;
+ 
+}
+.frame-wrapper .frame-head {
+  background-color: #e4e4e4;
+  padding: 8px 24px;
+  height: 36px;
+}
+.lining td{height:33px;}
+.nets-block table tr{height:56px;background-color: #f9f9f9;}
+.nets-block table td:first-of-type, .gx-container table th:first-of-type {
+  padding-left: 24px;padding-right: 24px;
+}
+.nets-block table tbody tr td {
+  padding: 6px 12px;
+  color: #212121;
+  height: 48px;
+}
+.topbg{
+   background-color: #f0f7ea !important;
+}

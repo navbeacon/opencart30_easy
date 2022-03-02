@@ -21,8 +21,6 @@ class ControllerExtensionPaymentDibseasy extends Controller {
                 $this->db->query("INSERT INTO `" . DB_PREFIX . "order_status` SET language_id = 1, name= '" . $status . "'");
             }
         }
-
-        
     }
 
     public function index() {
@@ -35,6 +33,12 @@ class ControllerExtensionPaymentDibseasy extends Controller {
             unset($this->session->data['dibseasy']['paymentid']);
             $this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true));
         }
+        if (isset($this->request->server['HTTPS']) && (($this->request->server['HTTPS'] == 'on') || ($this->request->server['HTTPS'] == '1'))) {
+            $data['base'] = $this->config->get('site_ssl');
+        } else {
+            $data['base'] = $this->config->get('site_url');
+        }
+		$data['site_url'] = $url = preg_replace("(^http?://)", "", HTTP_CATALOG );		
         $data['heading_title'] = $this->language->get('heading_title');
         $data['text_edit'] = $this->language->get('text_edit');
         $data['text_enabled'] = $this->language->get('text_enabled');
@@ -64,7 +68,8 @@ class ControllerExtensionPaymentDibseasy extends Controller {
         $data['text_b2b'] = $this->language->get('text_b2b');
         $data['text_b2c_b2b_b2c'] = $this->language->get('text_b2c_b2b_b2c');
         $data['text_b2b_b2c_b2b'] = $this->language->get('text_b2b_b2c_b2b');
-
+        $data['entry_dibseasy_wb_url'] = $this->language->get('entry_dibseasy_wb_url');
+        $data['entry_dibseasy_wb_auth'] = $this->language->get('entry_dibseasy_wb_auth');
         if (isset($this->error['warning'])) {
             $data['error_warning'] = $this->error['warning'];
         } else {
@@ -140,6 +145,27 @@ class ControllerExtensionPaymentDibseasy extends Controller {
             $data['payment_dibseasy_merchant_terms_and_conditions'] = $this->config->get('payment_dibseasy_merchant_terms_and_conditions');
         }
 
+        if (isset($this->request->post['payment_dibseasy_wb_url'])) {
+            $data['payment_dibseasy_wb_url'] = $this->request->post['payment_dibseasy_wb_url'];
+        } else {
+            $data['payment_dibseasy_wb_url'] = $this->config->get('payment_dibseasy_wb_url');
+        }
+        if (isset($this->request->post['payment_dibseasy_wb_auth'])) {
+            $data['payment_dibseasy_wb_auth'] = $this->request->post['payment_dibseasy_wb_auth'];
+        } else {
+            $data['payment_dibseasy_wb_auth'] = $this->config->get('payment_dibseasy_wb_auth');
+        }
+		if (isset($this->request->post['payment_dibseasy_frontend_debug'])) {
+            $data['payment_dibseasy_frontend_debug'] = $this->request->post['payment_dibseasy_frontend_debug'];
+        } else {
+            $data['payment_dibseasy_frontend_debug'] = $this->config->get('payment_dibseasy_frontend_debug');
+        }
+		if (isset($this->request->post['payment_dibseasy_backend_debug'])) {
+            $data['payment_dibseasy_backend_debug'] = $this->request->post['payment_dibseasy_backend_debug'];
+        } else {
+            $data['payment_dibseasy_backend_debug'] = $this->config->get('payment_dibseasy_backend_debug');
+        }
+
         $this->load->model('localisation/order_status');
 
         $data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
@@ -174,11 +200,7 @@ class ControllerExtensionPaymentDibseasy extends Controller {
             $data['payment_dibseasy_language'] = $this->config->get('payment_dibseasy_language');
         }
 
-        if (isset($this->request->post['dibseasy_debug_mode'])) {
-            $data['dibseasy_debug_mode'] = $this->request->post['dibseasy_debug_mode'];
-        } else {
-            $data['dibseasy_debug_mode'] = $this->config->get('dibseasy_debug_mode');
-        }
+       
 
         if (isset($this->request->post['payment_dibseasy_checkout_type'])) {
             $data['payment_dibseasy_checkout_type'] = $this->request->post['payment_dibseasy_checkout_type'];
@@ -218,6 +240,16 @@ class ControllerExtensionPaymentDibseasy extends Controller {
             $data['dibseasy_testkey_error'] = $this->error['dibseasy_testkey'];
         }
 
+        $data['error_dibseasy_wb_url'] = '';
+        if (isset($this->error['payment_dibseasy_wb_url'])) {
+            $data['error_dibseasy_wb_url'] = $this->error['payment_dibseasy_wb_url'];
+        }
+        $data['error_dibseasy_wb_auth'] = '';
+        if (isset($this->error['payment_dibseasy_wb_auth'])) {
+            $data['error_dibseasy_wb_url'] = $this->error['payment_dibseasy_wb_auth'];
+        }
+		 
+		
         $data['text_english'] = $this->language->get('text_english');
         $data['text_swedish'] = $this->language->get('text_swedish');
         $data['text_norwegian'] = $this->language->get('text_norwegian');
@@ -298,8 +330,17 @@ class ControllerExtensionPaymentDibseasy extends Controller {
         if (isset($this->request->post['dibseasy_testkey']) && strlen(trim($this->request->post['dibseasy_testkey'])) == 0) {
             $this->error['dibseasy_testkey'] = $this->language->get('entry_dibseasy_testkey_error');
         }
+
+        if (isset($this->request->post['payment_dibseasy_wb_url']) && strlen(trim($this->request->post['payment_dibseasy_wb_url'])) == 0) {
+            $this->error['payment_dibseasy_wb_url'] = $this->language->get('entry_dibseasy_wb_url_error');
+        }
+        if (isset($this->request->post['payment_dibseasy_wb_auth']) && strlen(trim($this->request->post['payment_dibseasy_wb_auth'])) == 0) {
+            $this->error['payment_dibseasy_wb_auth'] = $this->language->get('entry_dibseasy_wb_auth_error');
+        }
+
         return !$this->error ? true : false;
     }
+
     //update payment status on order view page based on API get request
     public function updatePaymentStatus() {
 
@@ -310,7 +351,7 @@ class ControllerExtensionPaymentDibseasy extends Controller {
             $secretKey = $this->config->get('payment_dibseasy_livekey');
             $apiUrl = 'https://api.dibspayment.eu/v1/payments/';
         }
-        
+
         $secretKeyArr = explode("-", $secretKey);
         if (isset($secretKeyArr['3'])) {
             $secretKey = $secretKeyArr['3'];

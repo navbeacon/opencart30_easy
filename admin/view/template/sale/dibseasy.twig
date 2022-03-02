@@ -1,0 +1,352 @@
+<link rel="stylesheet" href="{{base_url}}admin/view/stylesheet/nets_order.css">
+<div class="nets-container">
+    {% if debugMode  %}
+        <div class="row" style="padding-bottom:0px;margin-right: 3px;">
+                <div class="span12">
+                        <pre>{{ printResponseItems }}</pre>   
+                        <pre>{{ apiGetRequest }}</pre> 
+                </div>
+        </div>
+    {% endif %}
+    <div class="nets-block">
+        <table cellspacing="0" cellpadding="0" border="0" width="100%">
+            <thead>
+                <tr class="lining">
+                    <td class="listing bottom" colspan="3">
+                        <span>{{ txt.nets_payment_status }} : <b>{{ status.payStatus }}</b></span>
+                    </td>
+                    <td class="listing bottom" colspan="2" style="text-align:right">
+                        <span class="pid">{{ txt.nets_payment_id }} : <b>{{ paymentId }}</b></span>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="center">{{ txt.nets_quantity }}</th>
+                    <th>{{ txt.nets_model }}</th>
+                    <th>{{ txt.nets_product }}</th>
+                        {% if responseItems.failedItems or responseItems.cancelledItems or responseItems.refundedItems %}
+                        <th class="right" colspan="2">{{ txt.nets_price }}</th>
+                        {% else %} 
+                        <th class="right">{{ txt.nets_price }}</th>
+                        <th class="right" width="150px">{{ txt.nets_action }}</th>
+                        {% endif %} 	 
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Table body functions -->
+
+                <!-- Reserved Payment -->
+
+                {% if responseItems.reservedItems != responseItems.cancelledItems %}
+                    {% for listitem in responseItems.reservedItems %}
+                    <form 
+                        name="partialCharge_{{ listitem.reference }}" 
+                        method="post" 
+                        action="{{ base_url }}admin/index.php?route=sale/dibseasy/charge&user_token={{user_token}}"
+                        >
+                        <tr class="lining" key="{{ listitem.reference }}">
+                            <td class="listing" width="150px">
+                                <div class="qty-box charge">
+                                    <div class="quantity">
+                                        <input type="hidden" name="quantity" class="quant" value="{{ listitem.quantity }}"/>
+                                        <input type="hidden" name="reference" class="reference" value="{{ listitem.reference }}"/>
+                                        <input type="hidden" name="netprice" class="netprice" value="{{ listitem.netprice }}"/>
+                                        <input type="hidden" name="grossprice" class="grossprice" value="{{ listitem.grossprice }}"/>
+                                        <input type="hidden" name="currency" class="currency" value="{{ listitem.currency }}"/>
+                                        <input type="hidden" name="taxrate" class="taxrate" value="{{ listitem.taxRate }}"/>
+                                        <input type="hidden" name="orderid" value="{{ oID }}"/>
+                                         
+                                        <input type="hidden" name="name" value="{{ listitem.name }}"/>
+
+                                        <input type="button" value="-" class="minus"/> 										
+                                        <input 
+                                            type="text" 
+                                            class="single qty value" 
+                                            name="single" 
+                                            value="{{ listitem.quantity }}" 
+                                            step="1" 
+                                            min="1" 
+                                            max="{{ listitem.quantity }}"
+                                            />
+                                        <input type="button" value="+" class="plus"/>
+
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="listing">{{ listitem.reference }}</td> 
+                            <td class="listing">{{ listitem.name }}</td>
+                            <td class="listing" style="text-align:right;">
+                                <span id="price_{{ listitem.reference }}" class="priceblk">
+                                    {{ listitem.grossprice }} {{ listitem.currency }}
+                                </span>
+                            </td>
+                            <td class="listing" width="150px" align="right">									
+                                <button 
+                                    type="submit" 
+                                    id="item_{{ listitem.reference }}" 
+                                    class="nets-btn capture" 
+                                    name="charge" 
+                                    value="{{ listitem.quantity }}"
+                                    >
+                                    <span>{{ txt.nets_charge }}</span>
+                                </button>
+                            </td> 
+                        </tr>
+                    </form>
+
+                {% endfor %}
+            {% endif %}
+
+            <!-- Charged Payment -->
+            {%if responseItems.chargedItems %}
+                {% for prodval in responseItems.chargedItems %}
+                    <form 
+                        name="partialRefund_{{ prodval.reference }}" 
+                        method="post" 
+                        action="{{ base_url }}admin/index.php?route=sale/dibseasy/refund&user_token={{user_token}}"
+                        >
+                        <tr class="lining" key="{{ key }}">
+                            <td class="listing" width="150px">
+                                <div class="qty-box refund">
+                                    <div class="quantity">
+                                        <input type="hidden" name="quantity" class="quant" value="{{ prodval.quantity }}"/>
+                                        <input type="hidden" name="reference" class="reference" value="{{ prodval.reference }}"/>
+                                        <input type="hidden" name="name" value="{{ prodval.name }}"/>
+                                        <input type="hidden" name="netprice" class="netprice" value="{{ prodval.netprice }}"/>
+                                        <input type="hidden" name="grossprice" class="grossprice" value="{{ prodval.grossprice }}"/>
+                                        <input type="hidden" name="currency" class="currency" value="{{ prodval.currency }}"/>
+                                        <input type="hidden" name="taxrate" class="taxrate" value="{{ prodval.taxRate }}"/>
+                                        <input type="hidden" name="orderid" value="{{oID}}"/>
+                                        <input type="button" value="-" class="minus"/>
+                                        <input 
+                                            type="text" 
+                                            class="single qty value" 
+                                            name="single" 
+                                            value="{{ prodval.quantity }}" 
+                                            step="1" 
+                                            min="1" 
+                                            max="{{ prodval.quantity }}"
+                                            />
+                                        <input type="button" value="+" class="plus"/>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="listing">{{ prodval.reference }}</td>
+                            <td class="listing">{{ prodval.name }}</td>
+                            <td class="listing" style="text-align:right;">									 
+                                <span id="price_{{ prodval.reference }}" class="priceblk">
+                                    {{ prodval.grossprice }} {{ prodval.currency }}
+                                </span>
+                            </td>
+                            <td class="listing right" width="150px">
+                                <button 
+                                    type="submit" 
+                                    id="item_{{ key }}" 
+                                    class="nets-btn refund" 
+                                    name="refund" 
+                                    value="{{ prodval.quantity }}"
+                                    />
+                                <span>{{ txt.nets_refund }}</span>
+                                </button>
+                            </td>
+                        </tr>
+                    </form>	
+                {% endfor %}
+            {% endif %}
+
+            <!-- Refunded Payment -->
+
+            {% if(responseItems.refundedItems and status.payStatus == "Refunded") %} 
+                {% for item in responseItems.refundedItems %}
+                    <tr class="listing">
+                        <td class="listing" style="text-align: center;">{{ item.quantity }}</td>
+                        <td class="listing">{{ item.reference }}</td>
+                        <td class="listing">{{ item.name }}</td>
+                        <td class="listing right" colspan="2">{{ item.grossprice }} {{ item.currency }}</td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Cancelled Payment -->
+
+            {% if responseItems.cancelledItems %} 
+                {% for  item in responseItems.cancelledItems %} 
+                    <tr class="listing">
+                        <td class="listing" style="text-align: center;">{{ item.quantity }}</td>
+                        <td class="listing">{{ item.reference }}</td>
+                        <td class="listing">{{ item.name }}</td>
+                        <td class="listing right" colspan="2">{{ item.grossprice }} {{ item.currency }}</td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Failed Payment -->
+
+            {% if responseItems.failedItems %} 
+                {% for  item in responseItems.failedItems %}
+                    <tr class="listing">
+                        <td class="listing" style="text-align: center;">{{ item.quantity }}</td>
+                        <td class="listing">{{ item.reference }}</td>
+                        <td class="listing">{{ item.name }}</td>
+                        <td class="listing right" colspan="2">{{ item.grossprice }} {{ item.currency }}</td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+
+
+            <!-- Table footer functions / statuses -->
+
+
+            {% if(status.payStatus == "Reserved")  %}
+                <tr class="lining">
+                    <td class="listing top">
+                        <form 
+                            name="cancelOrder" 
+                            id="cancelorder" 
+                            action="{{ base_url }}admin/index.php?route=sale/dibseasy/cancel&user_token={{user_token}}" 
+                            method="post"
+                            >
+                            <input type="hidden" name="orderid" value="{{oID}}"/>
+                            <button 
+                                type="submit" 
+                                id="cancel_all" 
+                                class="nets-btn cancel" 
+                                name="cancel"
+                                >
+                                <span>{{ txt.nets_cancel_payment }}</span>
+                            </button>
+                        </form>
+                    </td>
+                    <td class="listing top reserve" colspan="3" style="text-align: center;">
+                        <div class="nets-status">{{ txt.nets_payment_reserved }}</div>
+                    </td>
+                    <td class="listing top" align="right" width="150px">
+                        <form 
+                            name="ChargeAll" 
+                            method="post" 
+                            action="{{ base_url }}admin/index.php?route=sale/dibseasy/charge&user_token={{user_token}}"
+                            >
+                            <input type="hidden" name="orderid" value="{{ oID }}"/>
+                            <button 
+                                type="submit" 
+                                id="charge_all" 
+                                class="nets-btn capture-all" 
+                                name="charge"
+                                >
+                                <span>{{ txt.nets_charge_all }}</span>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+
+            {%elseif status.payStatus == "Charged"  %}
+                {% if not responseItems.reservedItems %} 
+                    <tr class="lining">
+                        <td class="listing top" colspan="1">&nbsp;</td>
+                        <td class="listing top charge" colspan="3" style="text-align: center;">
+                            <div class="nets-status">{{ txt.nets_payment_charged }}</div>
+                        </td>
+                        <td class="listing top" align="right" width="150px">
+                            <form 
+                                name="refundAll" 
+                                method="post" 
+                                action="{{ base_url }}admin/index.php?route=sale/dibseasy/refund&user_token={{user_token}}"
+                                >
+                                <input type="hidden" name="orderid" value="{{ oID }}"/>
+                                <button 
+                                    type="submit" 
+                                    id="refund_all" 
+                                    class="nets-btn refund-all" 
+                                    name="refund"
+                                    >
+                                    <span>{{ txt.nets_refund_all }}</span>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endif %}
+
+            {%elseif status.payStatus == "Refunded"  %}
+                <tr class="">
+                    <td class="listing top refund" colspan="5" align="center">
+                        <div class="nets-status">{{ txt.nets_payment_refunded }}</div>
+                    </td>
+                </tr>
+
+            {%elseif status.payStatus == "Refund Pending"  %}
+
+                {% if responseItems.chargedItems  %}
+                    <tr class="">
+                        <td class="listing top refund" colspan="5" align="center">
+                            <div class="nets-status">{{ txt.nets_payment_refund_pending }}</div>
+                        </td>
+                    </tr>
+                {% endif %}
+                {% for item in responseItems.refundedItems %}
+                    <tr class="listing">
+                        <td class="listing" style="text-align: center;">{{ item.quantity }}</td>
+                        <td class="listing">{{ item.reference }}</td>
+                        <td class="listing">{{ item.name }}</td>
+                        <td class="listing right" colspan="2">{{ item.grossprice }} {{ item.currency }}</td>
+                    </tr>
+                {% endfor %}
+                {% if not responseItems.chargedItems  %}
+                    <tr class="">
+                        <td class="topbg" colspan="5" align="center">
+                            <div class="nets-status">{{ txt.nets_payment_refund_pending }}</div>
+                        </td>
+                    </tr>
+                {% endif %}
+
+            {%elseif status.payStatus == "Cancelled"  %}
+                <tr class="">
+                    <td class="listing top cancel" colspan="5" align="center">
+                        <div class="nets-status">{{ txt.nets_payment_cancelled }}</div>
+                    </td>
+                </tr>
+
+            {%elseif status.payStatus == "Failed" %}
+                <tr class="">
+                    <td class="listing top fail" colspan="5" align="center">
+                        <div class="nets-status">{{ txt.nets_payment_failed }}</div>
+                    </td>
+                </tr>
+
+            {%elseif status.payStatus == "Partial Charged" %}
+                <tr class="topbg">
+                    <td class="" colspan="5" align="center">
+                        <div class="nets-status">{{ txt.nets_charged_products }}</div>
+                    </td>
+                </tr>
+                {% for prodval in responseItems.chargedItemsOnly %}
+                    <tr class="lining" key="{{ key }}">
+                        <td class="listing partial-charge center" width="150px">{{ prodval.quantity }}</td>
+                        <td class="listing partial-charge">{{ prodval.reference }}</td>
+                        <td class="listing partial-charge">{{ prodval.name }}</td>
+                        <td class="listing partial-charge right" colspan="2">{{ prodval.grossprice }} {{ prodval.currency }}</td>
+                    </tr>
+                {% endfor %}
+
+            {%elseif status.payStatus == "Partial Refunded"  %}
+                {% if responseItems.chargedItems %}
+                    <tr class="">
+                        <td class="listing top refund" colspan="5" align="center">
+                            <div class="nets-status">{{ txt.nets_refunded_products }}</div>
+                        </td>
+                    </tr>
+                {% endif %}
+                {%for prodval in responseItems.refundedItems %}
+                    <tr class="lining" key="{{ key }}">
+                        <td class="listing partial-refund center" width="150px">{{ prodval.quantity }}</td>
+                        <td class="listing partial-refund">{{ prodval.reference }}</td>
+                        <td class="listing partial-refund">{{ prodval.name }}</td>
+                        <td class="listing partial-refund right" colspan="2">{{ prodval.grossprice }} {{ prodval.currency }}</td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<script src="{{base_url}}admin/view/javascript/order.js"></script>

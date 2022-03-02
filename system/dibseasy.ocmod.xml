@@ -46,4 +46,48 @@
             </add>
         </operation>
     </file>
+    
+    <file path="admin/controller/sale/order.php">
+        <operation>
+            <search trim="true|false">
+                <![CDATA[$this->response->setOutput($this->load->view('sale/order_info', $data));]]>
+            </search>
+            <add position="before" offset="0">
+                <![CDATA[                    
+                    $data['nets_payment_view'] = $this->load->controller('sale/dibseasy');
+                    $data['payment_code'] = $order_info['payment_code'];
+                    $this->load->model('setting/setting');
+                    $data['settings'] = $this->model_setting_setting->getSetting('payment_dibseasy');                    
+                ]]>
+            </add>
+        </operation>
+    </file>
+    
+    <file path="admin/view/template/sale/order_info.twig">
+        <operation error="log">
+          <search position="before" trim="true" ><![CDATA[{{ text_order }}]]></search>
+          <add position="before" offset="2"><![CDATA[
+             {%  if payment_code=='dibseasy' %}
+                <div class="panel panel-default gx-compatibility">              
+                    <div class="content grid">
+			<div class="span12 remove-padding">
+                            <div class="frame-wrapper nets">
+				<div class="frame-head nets">
+					<label class="title">
+					<span id="nets-easy">NETS Easy</span><span id="nets-logo"><img href="./Images/nets-easy.png"></span>					</label>
+				</div>
+				<div class="frame-content">              
+                                    {{ nets_payment_view }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              {% endif %}
+            ]]>
+          </add>
+        </operation>    
+    </file>
+
 </modification>
+
