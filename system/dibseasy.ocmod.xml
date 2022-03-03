@@ -5,33 +5,47 @@
   <version>1.0</version>
   <author>Nets</author>
   <link>http://www.opencart.com</link>
-<file path="catalog/controller/checkout/cart.php">
-<operation>
-      <search trim="true|false">
-        <![CDATA[$this->response->setOutput($this->load->view('checkout/cart', $data));]]>
-      </search>
-      <add position="before" offset="0">
-        <![CDATA[ $this->load->model('setting/setting');
-        $settings = $this->model_setting_setting->getSetting('payment_dibseasy');
-        if(!empty($settings['payment_dibseasy_status']) && 'embedded' == $settings['payment_dibseasy_checkout_type']) {
-            $data['checkout'] = $this->url->link('checkout/checkout', '', true);}]]>
-      </add>
-    </operation>
-</file>
+	<file path="system/library/template/twig.php">
+	<operation>
+	  <search>
+		<![CDATA[if (is_file($file)) {]]>
+	  </search>
+	  <add position="replace">
+		<![CDATA[if (defined('DIR_CATALOG') && is_file(DIR_MODIFICATION . 'admin/view/template/' . $filename . '.twig')) {	
+				$code = file_get_contents(DIR_MODIFICATION . 'admin/view/template/' . $filename . '.twig');
+			} elseif (is_file(DIR_MODIFICATION . 'catalog/view/theme/' . $filename . '.twig')) {
+				$code = file_get_contents(DIR_MODIFICATION . 'catalog/view/theme/' . $filename . '.twig');
+			} elseif (is_file($file)) {]]>
+	  </add>
+	</operation>
+	</file>
+	<file path="catalog/controller/checkout/cart.php">
+	<operation>
+		  <search trim="true|false">
+			<![CDATA[$this->response->setOutput($this->load->view('checkout/cart', $data));]]>
+		  </search>
+		  <add position="before" offset="0">
+			<![CDATA[ $this->load->model('setting/setting');
+			$settings = $this->model_setting_setting->getSetting('payment_dibseasy');
+			if(!empty($settings['payment_dibseasy_status']) && 'embedded' == $settings['payment_dibseasy_checkout_type']) {
+				$data['checkout'] = $this->url->link('checkout/checkout', '', true);}]]>
+		  </add>
+		</operation>
+	</file>
 
-<file path="catalog/controller/common/cart.php">
-  <operation>
-      <search trim="true|false">
-        <![CDATA[$this->load->view('common/cart', $data);]]>
-      </search>
-      <add position="before" offset="0">
-        <![CDATA[$this->load->model('setting/setting');
-            $settings = $this->model_setting_setting->getSetting('payment_dibseasy');
-            if(!empty($settings['payment_dibseasy_status']) && 'embedded' == $settings['payment_dibseasy_checkout_type']) {
-            $data['checkout'] = $this->url->link('checkout/checkout', '', true);}]]>
-      </add>
-    </operation>
-</file>
+	<file path="catalog/controller/common/cart.php">
+	  <operation>
+		  <search trim="true|false">
+			<![CDATA[$this->load->view('common/cart', $data);]]>
+		  </search>
+		  <add position="before" offset="0">
+			<![CDATA[$this->load->model('setting/setting');
+				$settings = $this->model_setting_setting->getSetting('payment_dibseasy');
+				if(!empty($settings['payment_dibseasy_status']) && 'embedded' == $settings['payment_dibseasy_checkout_type']) {
+				$data['checkout'] = $this->url->link('checkout/checkout', '', true);}]]>
+		  </add>
+		</operation>
+	</file>
 
     <file path="catalog/controller/common/header.php">
         <operation>
