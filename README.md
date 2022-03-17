@@ -36,8 +36,6 @@ Alternative 2:
 4. Go To Modules -> Admin -> Extensions -> Payments -> Easy Checkout.
 5. Click on "Install" plus button.
 
-NOTE :
-
 ### Features
 
 1. Supports shipping methods in embedded checkout

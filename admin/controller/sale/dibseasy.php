@@ -16,7 +16,7 @@ class ControllerSaleDibseasy extends Controller {
     public function __construct($registry) {  
         parent::__construct($registry);
 		error_reporting(0);
-        $this->logger = new Log('dibs.easy.log');
+        $this->logger = new Log('dibs.easy.log'); 
         $this->load->model('setting/setting');
         $this->settings = $this->model_setting_setting->getSetting('payment_dibseasy');
         $this->orderId = $this->request->get['order_id'];
@@ -28,7 +28,7 @@ class ControllerSaleDibseasy extends Controller {
         $this->managePortalChargeAndRefund();
         $this->load->model('user/user_group');
         $this->model_user_user_group->addPermission($this->user->getId(), 'access', 'sale/dibseasy');
-        $this->model_user_user_group->addPermission($this->user->getId(), 'modify', 'sale/dibseasy');               
+        $this->model_user_user_group->addPermission($this->user->getId(), 'modify', 'sale/dibseasy');              
         // IF NOT EXISTS !!
         $result = $this->db->query("CREATE TABLE IF NOT EXISTS " . DB_PREFIX . "nets_payment (
 		`id` int(10) unsigned NOT NULL auto_increment,		
@@ -93,102 +93,30 @@ class ControllerSaleDibseasy extends Controller {
      */
 
     public function getOrderItems($orderId) {
-        //get order products
-        $this->load->model('catalog/product');         
-        $taxRateShipping = $order_total = 0;
-        $product_query = $this->db->query(
-                "SELECT product_id,model,name,price,tax,quantity FROM " . DB_PREFIX . "order_product  WHERE order_id = '" . (int) $orderId . "'"
+       //get order items from logged datastring
+         $logquery = $this->db->query(
+                "SELECT payment_id, datastring from tbl_nets_payment_log  WHERE payment_id = '" . $this->paymentId . "'"
         );
-        if ($product_query->num_rows) {
-            foreach ($product_query->rows as $prows) {
-                //get product tax rate
-                $productArr = $this->model_catalog_product->getProduct($prows['product_id']);
-                $tax_query = $this->db->query("SELECT tx.name,tx.rate,tx.type FROM " . DB_PREFIX . "tax_rate as tx INNER JOIN " . DB_PREFIX . "tax_rule as tr ON tx.tax_rate_id = tr.tax_rate_id WHERE tr.tax_class_id = '" . (int) $productArr['tax_class_id'] . "'");
-                $taxRate = $taxType = '';
-                if ($tax_query->num_rows) {
-                    $taxRate = $tax_query->row['rate'];
-                    $taxType = $tax_query->row['type'];
-                }
-                $product = $prows['price'];               
-                $product = $prows['price'] + $prows['tax']; // product price incl. VAT in DB format                             
-
-                $quantity = (int) $prows['quantity'];
-                $taxRateShipping = $tax = $taxRate; // Tax rate in DB format
-                $taxFormat = '1' . str_pad(number_format((float) $tax, 2, '.', ''), 5, '0', STR_PAD_LEFT);
-                $unitPrice = round(round(($product * 100) / $taxFormat, 2) * 100);
-                $netAmount = round($quantity * $unitPrice);
-                $grossAmount = round($quantity * ($product * 100));
-                $taxAmount = $grossAmount - $netAmount;
-
-                $taxRate = number_format($taxRate, 2) * 100;
-                $itemsArray[] = array(
-                    'reference' => $prows['model'],
-                    'name' => $prows['name'],
-                    'quantity' => $quantity,
-                    'unit' => 'pcs',
-                    'unitPrice' => $unitPrice,
-                    'taxRate' => $taxRate,
-                    'taxAmount' => $taxAmount,
-                    'grossTotalAmount' => $grossAmount,
-                    'netTotalAmount' => $netAmount
-                );
-            }
-        }
-        //shipping items
-        $shippingCost = '';
-        $order_query = $this->db->query(
-                "SELECT title,value,code FROM " . DB_PREFIX . "order_total  WHERE order_id = '" . (int) $orderId . "'"
-        );
-        if ($order_query->num_rows) {
-            foreach ($order_query->rows as $orows) {
-                if ($orows['code'] == 'shipping' && $orows['value'] > 0) {
-                    $shippingCost = $orows['value'];
-                }
-                if ($orows['code'] == 'total' && $orows['value'] > 0) {
-                    $order_total = number_format($orows['value'], 2);
-                }
-            }
-        }
-        if (!empty($shippingCost)) {
-            //easy calc method  
-            $quantity = 1;
-            $shipping = (isset($shippingCost)) ? $shippingCost : 0; // shipping price incl. VAT in DB format 
-            $tax = (isset($taxRateShipping)) ? $taxRateShipping : 0; // Tax rate in DB format						
-            if ($taxType == 'P') {
-                $taxAmount = 1 + ($taxRateShipping / 100); // 1.25
-                $shipping = $shipping * $taxAmount;
-            }
-            $taxFormat = '1' . str_pad(number_format((float) $tax, 2, '.', ''), 5, '0', STR_PAD_LEFT);
-            $unitPrice = round(round(($shipping * 100) / $taxFormat, 2) * 100);
-            $netAmount = round($quantity * $unitPrice);
-            $grossAmount = round($quantity * ($shipping * 100));
-            $taxAmount = $grossAmount - $netAmount;
-            $itemsArray[] = array(
-                'reference' => 'Shipping',
-                'name' => 'Shipping',
-                'quantity' => $quantity,
-                'unit' => 'pcs',
-                'unitPrice' => $unitPrice,
-                'taxRate' => $tax * 100,
-                'taxAmount' => $taxAmount,
-                'grossTotalAmount' => $grossAmount,
-                'netTotalAmount' => $netAmount
-            );
-        }
-        // items total sum
-        $itemsGrossPriceSumma = 0;
-        foreach ($itemsArray as $total) {
-            $itemsGrossPriceSumma += $total['grossTotalAmount'];
+        $datastring = '';
+        if ($logquery->num_rows) {
+            $datastring = json_decode($logquery->row['datastring']);
+            foreach ($datastring->order->items as $key => $value) {
+                $datastring->order->items[$key] = (array) $value;
+            }		 
+			$unsetkey = array_search('coupon', array_column($datastring->order->items, 'reference'));
+			if($unsetkey){
+				unset($datastring->order->items[$unsetkey]);
+			}
         }
         // compile datastring
         $data = array(
             'order' => array(
-                'items' => $itemsArray,
-                'amount' => $order_total,
+                'items' => (isset($datastring->order->items)) ? $datastring->order->items: '',
+                'amount' => (isset($datastring->order->amount)) ? $datastring->order->amount: '',
                 'currency' => $this->session->data['currency']
             )
-        );
-		
+        );       
+
         return $data;
     }
 
@@ -213,7 +141,8 @@ class ControllerSaleDibseasy extends Controller {
                     'name' => $items['name'],
                     'quantity' => (int) $items['quantity'],
                     'taxRate' => $items['taxRate'],
-                    'netprice' => $items['unitPrice'] / 100
+                    'netprice' => $items['unitPrice'] / 100,
+					'grossprice' => $items['grossTotalAmount'] / 100
                 );
             }
             if (isset($orderItems['order']['amount'])) {
@@ -362,7 +291,7 @@ class ControllerSaleDibseasy extends Controller {
                     'taxRate' => $prod['taxRate'] / 100,
                     'quantity' => $qty,
                     'netprice' => $netprice,
-                    'grossprice' => $grossprice,
+                    'grossprice' => $prod['grossprice'] / $prod['quantity'] ,
                     'currency' => $response['payment']['orderDetails']['currency']
                 );
             }
@@ -431,7 +360,7 @@ class ControllerSaleDibseasy extends Controller {
                     // call cancel api here
                     $cancelUrl = $this->getVoidPaymentUrl($this->paymentId);
                     $cancelBody = [
-                        'amount' => $data['order']['amount'] * 100,
+                        'amount' => $data['order']['amount'] ,
                         'orderItems' => $data['order']['items']
                     ];
                     try {
@@ -560,7 +489,7 @@ class ControllerSaleDibseasy extends Controller {
             ];
         } else {
             $body = [
-                'amount' => $data['order']['amount'] * 100,
+                'amount' => $data['order']['amount'] ,
                 'orderItems' => $data['order']['items']
             ];
         }
@@ -595,6 +524,7 @@ class ControllerSaleDibseasy extends Controller {
         $name = $_REQUEST['name'];
         $refundQty = $_REQUEST['single'];
         $taxRate = (int) $_REQUEST['taxrate'];
+		$payment_id = $this->getPaymentId($orderid);
         $data = $this->getOrderItems($orderid);
         $api_return = $this->getCurlResponse($this->getApiUrl() . $this->getPaymentId($orderid), 'GET');
         $chargeResponse = json_decode($api_return, true);
@@ -724,12 +654,13 @@ class ControllerSaleDibseasy extends Controller {
 
     public function cancel() {
         $orderid = $_REQUEST['orderid'];
+		$payment_id = $this->getPaymentId($orderid);
         $data = $this->getOrderItems($orderid);
         $payment_id = $this->getPaymentId($orderid);
         // call cancel api here
         $cancelUrl = $this->getVoidPaymentUrl($payment_id);
         $body = [
-            'amount' => $data['order']['amount'] * 100,
+            'amount' => $data['order']['amount'] ,
             'orderItems' => $data['order']['items']
         ];
         $api_return = $this->getCurlResponse($cancelUrl, 'POST', json_encode($body));

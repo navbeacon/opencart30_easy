@@ -75,7 +75,7 @@ $(".single.qty").on('input change', function(e) {
 });
 
 $(".quantity").on('click', '.plus, .minus', function () {
-	var ref = $(this).closest('.quantity').find(".reference").val();
+	var ref = $(this).closest('.quantity').find(".reference").val().replace(/\s/g, "");
 	var price = $(this).closest('.quantity').find(".grossprice").val();
 	var currency = $(this).closest('.quantity').find(".currency").val();
 	var $qty = $(this).closest('.quantity').find(".qty");

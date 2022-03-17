@@ -75,7 +75,7 @@
                             <td class="listing">{{ listitem.reference }}</td> 
                             <td class="listing">{{ listitem.name }}</td>
                             <td class="listing" style="text-align:right;">
-                                <span id="price_{{ listitem.reference }}" class="priceblk">
+                                <span id="price_{{ listitem.reference|replace({" ": ""}) }}" class="priceblk">
                                     {{ listitem.grossprice }} {{ listitem.currency }}
                                 </span>
                             </td>
@@ -133,7 +133,7 @@
                             <td class="listing">{{ prodval.reference }}</td>
                             <td class="listing">{{ prodval.name }}</td>
                             <td class="listing" style="text-align:right;">									 
-                                <span id="price_{{ prodval.reference }}" class="priceblk">
+                                <span id="price_{{  prodval.reference|replace({" ": ""}) }}" class="priceblk">
                                     {{ prodval.grossprice }} {{ prodval.currency }}
                                 </span>
                             </td>

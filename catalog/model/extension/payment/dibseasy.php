@@ -37,6 +37,14 @@ class ModelExtensionPaymentDibseasy extends Model {
 		`fldStamp` varchar(100) DEFAULT NULL,
 		PRIMARY KEY (`fldID`)
 		)");	 
+		//For storing datastring 
+        $result = $this->db->query("CREATE TABLE IF NOT EXISTS `tbl_nets_payment_log` (
+        `id` int(11) unsigned NOT NULL auto_increment,		
+        `payment_id` varchar(255) default NULL,
+        `datastring` text DEFAULT NULL,
+        `created_date` datetime DEFAULT NULL,		
+         PRIMARY KEY (`id`)
+        )");
 
     }
 
@@ -426,6 +434,11 @@ class ModelExtensionPaymentDibseasy extends Model {
         }
         if (!empty($response->paymentId)) {
             $this->session->data['dibseasy']['paymentid'] = $response->paymentId;
+			
+			$logquery = "insert into tbl_nets_payment_log (`payment_id`, `datastring`,`created_date`) "
+                    . "values ('" . $this->session->data['dibseasy']['paymentid'] . "', '" . json_encode($this->session->data['dibseasy']['datastring']) . "',now())";
+            $this->db->query($logquery);
+			
             return $response->paymentId;
         } else {
             $this->logger->write($response);
@@ -668,18 +681,20 @@ class ModelExtensionPaymentDibseasy extends Model {
                 )
             );
         }
-		//echo "<pre>";print_r($data);die;
+		
         if ($consumerType) {
             $checkout = $data['checkout'];
             $checkout['consumerType'] = $consumerType;
             $data['checkout'] = $checkout;
         }
-        if ($this->config->get('payment_dibseasy_debug')) {
+		$this->session->data['dibseasy']['datastring'] = $data;
+		$_SESSION['datastring'] = '' ;
+        if ($this->config->get('payment_dibseasy_frontend_debug')) {
             $this->logger->write("Collected data:");
             $this->logger->write($data);
-        }
-
-
+			$_SESSION['datastring'] = $data ;
+        } 
+		//echo "<pre>";print_r($_SESSION['datastring']);die;
         return $data;
     }
 

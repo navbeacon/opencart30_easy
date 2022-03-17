@@ -583,3 +583,9 @@ div.loading{
     padding-left: 5px;
     padding-right: 5px;
 }
+pre.nets {
+  overflow: auto;
+  padding: 15px;
+  background: #455468;
+  color: #fff;
+}

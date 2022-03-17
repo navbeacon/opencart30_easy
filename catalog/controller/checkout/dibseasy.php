@@ -83,6 +83,8 @@ class ControllerCheckoutDibseasy extends Controller {
         if (empty($data['checkout_url'])) {
             $data['checkout_url'] = $this->url->link('checkout/checkout', '', true);
         }
+		$data['debugmode'] = $this->config->get('payment_dibseasy_frontend_debug');
+		$data['datastring'] = print_r($_SESSION['datastring'],true);
         $this->response->setOutput($this->load->view('checkout/dibseasy', array_merge($data, $checkoutData)));
     }
 
