@@ -16,7 +16,7 @@ class ControllerExtensionPaymentDibseasy extends Controller {
         //add easy payment statuses in order_status table
         $order_query = $this->db->query("SELECT order_status_id FROM `" . DB_PREFIX . "order_status`  WHERE name = 'Reserved'");
         if (empty($order_query->num_rows)) {
-            $statusArr = array("Partial Charged", "Partial Refunded", "Refund Pending", "Reserved", "Charged");
+            $statusArr = array("Partial Charged", "Partial Refunded", "Refund Pending", "Reserved", "Charged", "Failed", "Canceled");
             foreach ($statusArr as $status) {
                 $this->db->query("INSERT INTO `" . DB_PREFIX . "order_status` SET language_id = 1, name= '" . $status . "'");
             }
