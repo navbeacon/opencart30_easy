@@ -344,6 +344,7 @@ class ControllerExtensionPaymentDibseasy extends Controller {
     //update payment status on order view page based on API get request
     public function updatePaymentStatus() {
 
+
         if ($this->config->get('payment_dibseasy_testmode')) {
             $secretKey = $this->config->get('payment_dibseasy_testkey');
             $apiUrl = "https://test.api.dibspayment.eu/v1/payments/";
@@ -360,78 +361,84 @@ class ControllerExtensionPaymentDibseasy extends Controller {
         if (isset($_GET['order_id'])) {
             $order_id = $_GET['order_id'];
             $order_query = $this->db->query("SELECT custom_field FROM `" . DB_PREFIX . "order`  WHERE order_id = '" . (int) $order_id . "'");
-            if ($order_query->num_rows) {
-                //get generated ids of easy payment statuses
-                $netsOrderStatuses = array();
-                $query = $this->db->query("SELECT order_status_id,name FROM `" . DB_PREFIX . "order_status`  WHERE language_id = 1 group by name");
-                if (!empty($query->num_rows)) {
-                    foreach ($query->rows as $key => $values) {
-                        $netsOrderStatuses[$values['name']] = $values['order_status_id'];
+
+            $payment_method_query = $this->db->query("SELECT `payment_code` FROM `" . DB_PREFIX . "order` WHERE `order_id` = '" . (int) $order_id . "'");
+            $payment_method = $payment_method_query->row['payment_code'];
+            if ($payment_method == "dibseasy") {
+
+                if ($order_query->num_rows) {
+                    //get generated ids of easy payment statuses
+                    $netsOrderStatuses = array();
+                    $query = $this->db->query("SELECT order_status_id,name FROM `" . DB_PREFIX . "order_status`  WHERE language_id = 1 group by name");
+                    if (!empty($query->num_rows)) {
+                        foreach ($query->rows as $key => $values) {
+                            $netsOrderStatuses[$values['name']] = $values['order_status_id'];
+                        }
                     }
-                }
-                //get payment responce
-                $payId = $order_query->row['custom_field'];
-                $ch = curl_init($apiUrl . $payId);
-                curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                    "Content-Type: application/json",
-                    "Accept: application/json",
-                    "Authorization: " . $secretKey) // secret-key
-                );
-                $response = json_decode(curl_exec($ch));
+                    //get payment responce
+                    $payId = $order_query->row['custom_field'];
+                    $ch = curl_init($apiUrl . $payId);
+                    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                        "Content-Type: application/json",
+                        "Accept: application/json",
+                        "Authorization: " . $secretKey) // secret-key
+                    );
+                    $response = json_decode(curl_exec($ch));
 
-                $chargeid = $pending = $refunded = $charged = $reserved = $cancelled = $paymentStatus = $dbPayStatus = '';
-                if (isset($response->payment->summary->cancelledAmount)) {
-                    $cancelled = $response->payment->summary->cancelledAmount;
-                }
-                if (isset($response->payment->summary->reservedAmount)) {
-                    $reserved = $response->payment->summary->reservedAmount;
-                }
-                if (isset($response->payment->summary->chargedAmount)) {
-                    $charged = $response->payment->summary->chargedAmount;
-                }
-                if (isset($response->payment->summary->refundedAmount)) {
-                    $refunded = $response->payment->summary->refundedAmount;
-                }
-                if (isset($response->payment->refunds[0]->state)) {
-                    $pending = $response->payment->refunds[0]->state == "Pending";
-                }
-                if (isset($response->payment->charges[0]->chargeId)) {
-                    $chargeid = $response->payment->charges[0]->chargeId;
-                }
+                    $chargeid = $pending = $refunded = $charged = $reserved = $cancelled = $paymentStatus = $dbPayStatus = '';
+                    if (isset($response->payment->summary->cancelledAmount)) {
+                        $cancelled = $response->payment->summary->cancelledAmount;
+                    }
+                    if (isset($response->payment->summary->reservedAmount)) {
+                        $reserved = $response->payment->summary->reservedAmount;
+                    }
+                    if (isset($response->payment->summary->chargedAmount)) {
+                        $charged = $response->payment->summary->chargedAmount;
+                    }
+                    if (isset($response->payment->summary->refundedAmount)) {
+                        $refunded = $response->payment->summary->refundedAmount;
+                    }
+                    if (isset($response->payment->refunds[0]->state)) {
+                        $pending = $response->payment->refunds[0]->state == "Pending";
+                    }
+                    if (isset($response->payment->charges[0]->chargeId)) {
+                        $chargeid = $response->payment->charges[0]->chargeId;
+                    }
 
 
-                if ($reserved) {
-                    if ($cancelled) {
-                        $paymentStatus = $netsOrderStatuses["Canceled"]; //7 cancelled
-                    } else if ($charged) {
-                        if ($reserved != $charged) {
-                            $paymentStatus = $netsOrderStatuses["Partial Charged"]; // Partial Charged
-                        } else if ($refunded) {
-                            if ($reserved != $refunded) {
-                                $paymentStatus = $netsOrderStatuses["Partial Refunded"]; // Partial Refunded
+                    if ($reserved) {
+                        if ($cancelled) {
+                            $paymentStatus = $netsOrderStatuses["Canceled"]; //7 cancelled
+                        } else if ($charged) {
+                            if ($reserved != $charged) {
+                                $paymentStatus = $netsOrderStatuses["Partial Charged"]; // Partial Charged
+                            } else if ($refunded) {
+                                if ($reserved != $refunded) {
+                                    $paymentStatus = $netsOrderStatuses["Partial Refunded"]; // Partial Refunded
+                                } else {
+                                    $paymentStatus = $netsOrderStatuses["Refunded"]; //11 Refunded
+                                }
+                            } else if ($pending) {
+                                $paymentStatus = $netsOrderStatuses["Refund Pending"]; //Refund Pending
                             } else {
-                                $paymentStatus = $netsOrderStatuses["Refunded"]; //11 Refunded
+                                $paymentStatus = $netsOrderStatuses["Charged"]; // Charged
                             }
                         } else if ($pending) {
                             $paymentStatus = $netsOrderStatuses["Refund Pending"]; //Refund Pending
                         } else {
-                            $paymentStatus = $netsOrderStatuses["Charged"]; // Charged
+                            $paymentStatus = $netsOrderStatuses["Reserved"]; // Reserved
                         }
-                    } else if ($pending) {
-                        $paymentStatus = $netsOrderStatuses["Refund Pending"]; //Refund Pending
                     } else {
-                        $paymentStatus = $netsOrderStatuses["Reserved"]; // Reserved
+                        $paymentStatus = $netsOrderStatuses["Failed"]; // 10 Failed
                     }
-                } else {
-                    $paymentStatus = $netsOrderStatuses["Failed"]; // 10 Failed
-                }
 
-                //update payment status of charged payment  
-                $query = $this->db->query("SELECT order_id FROM `" . DB_PREFIX . "order`  WHERE order_status_id = $paymentStatus AND order_id = '" . $_GET['order_id'] . "' ");
-                if (isset($paymentStatus) && empty($query->num_rows) && !empty($response)) {
-                    $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = $paymentStatus where order_id = '" . $_GET['order_id'] . "' ");
+                    //update payment status of charged payment  
+                    $query = $this->db->query("SELECT order_id FROM `" . DB_PREFIX . "order`  WHERE order_status_id = $paymentStatus AND order_id = '" . $_GET['order_id'] . "' ");
+                    if (isset($paymentStatus) && empty($query->num_rows) && !empty($response)) {
+                        $this->db->query("UPDATE " . DB_PREFIX . "order SET order_status_id = $paymentStatus where order_id = '" . $_GET['order_id'] . "' ");
+                    }
                 }
             }
         }
