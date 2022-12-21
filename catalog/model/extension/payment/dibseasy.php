@@ -331,15 +331,20 @@ class ModelExtensionPaymentDibseasy extends Model {
             $order_data['tracking'] = $this->request->cookie['tracking'];
             $subtotal = $this->cart->getSubTotal();
             // Affiliate
+            // Removed as affiliate/affiliate does not exist in OC3.0
+            /*
             $this->load->model('affiliate/affiliate');
             $affiliate_info = $this->model_affiliate_affiliate->getAffiliateByCode($this->request->cookie['tracking']);
             if ($affiliate_info) {
                 $order_data['affiliate_id'] = $affiliate_info['affiliate_id'];
                 $order_data['commission'] = ($subtotal / 100) * $affiliate_info['commission'];
             } else {
+                */
                 $order_data['affiliate_id'] = 0;
                 $order_data['commission'] = 0;
+                /*
             }
+            */
             // Marketing
             $this->load->model('checkout/marketing');
             $marketing_info = $this->model_checkout_marketing->getMarketingByCode($this->request->cookie['tracking']);
